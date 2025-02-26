@@ -1,0 +1,10 @@
+data/
+.venv
+.DS_Store
+src/__pycache__
+testing/.venv
+testing/gif
+testing/.DS_Store
+
+src/__pycache__/data_collector.cpython-313.pyc
+old\ code
