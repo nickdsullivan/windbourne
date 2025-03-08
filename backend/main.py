@@ -62,7 +62,9 @@ def get_balloon_map(balloon_id, hour=0):
     if not was_file_created_last_hour(filename):
         visualizer.visualize_wind(elevations, wind_speeds, directions, balloon_elevation=elevation, filename=filename, balloon_number=balloon_id, hour=hour)
     if os.path.exists(filename):
-        return FileResponse(filename, media_type="image/gif")
+        response = FileResponse(filename, media_type="image/gif")
+        response.headers["Access-Control-Allow-Origin"] = "*" 
+        return response
     else:
         return {"error": "Image not found"}
 
