@@ -124,6 +124,13 @@ def was_file_created_last_hour(filename):
 
 
 def clear_folder(folder_path):
+    # Set the parent directory to 'backend', since you are currently in 'backend/src/tools'
+    parent_dir = os.path.abspath(os.path.join(os.getcwd(), '..'))
+
+    # Walk through the parent directory (backend)
+    for root, dirs, files in os.walk(parent_dir):
+        for file in files:
+            print(os.path.join(root, file))
     for file_name in os.listdir(folder_path):
         file_path = os.path.join(folder_path, file_name)
         if os.path.isfile(file_path):  
