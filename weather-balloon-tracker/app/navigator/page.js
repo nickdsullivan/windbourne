@@ -18,6 +18,7 @@ function NavigatorContent() {
     const [balloonPosition, setBalloonPosition] = useState({ lat: -1, long: -1, alt: -1, speed: -1, bearing: -1 });
     const [targetPosition, setTargetPosition] = useState({ lat: 0, long: 0, alt: balloonPosition.alt ?? -1 });
     const [maxIters, setMaxIters] = useState(20);
+    const [beamWidth, setBeamWidth] = useState(3);
     const [directions, setDirections] = useState(null);
     const [isNavigating, setIsNavigating] = useState(false);
     const [displayedImageSize, setDisplayedImageSize] = useState({ width: 750, height: 750 });
@@ -99,7 +100,7 @@ function NavigatorContent() {
         setIsNavigating(true);
 
 
-        fetch(`https://dear-jolly-sunbeam.ngrok-free.app/start-navigation?lat=${balloonPosition.lat}&long=${balloonPosition.long}&alt=${balloonPosition.alt}&t_lat=${targetPosition.lat}&t_long=${targetPosition.long}&t_alt=${targetPosition.alt}&max_iters=${maxIters}`, {
+        fetch(`https://dear-jolly-sunbeam.ngrok-free.app/start-navigation?lat=${balloonPosition.lat}&long=${balloonPosition.long}&alt=${balloonPosition.alt}&t_lat=${targetPosition.lat}&t_long=${targetPosition.long}&t_alt=${targetPosition.alt}&max_iters=${maxIters}&beam_width=${beamWidth}`, {
             method: 'GET',
             headers: {
                 'ngrok-skip-browser-warning': 'true'
@@ -144,6 +145,9 @@ function NavigatorContent() {
     const handleMaxItersInputChange = (e) => {
         setMaxIters(e.target.value);
     };
+    const handleBeamWidthInputChange = (e) => {
+        setBeamWidth(e.target.value);
+    };
 
     return (
 
@@ -187,9 +191,19 @@ function NavigatorContent() {
                     Maximium iteration:
                     <input
                         type="number"
+                        name="beamWidth"
+                        value={beamWidth}
+                        onChange={handleBeamWidthInputChange}
+                        style={{ marginLeft: "10px", marginRight: "10px", padding: "5px", width: "100px" }}
+                    />
+                </label>
+                <label>
+                    Beam Width:
+                    <input
+                        type="number"
                         name="maxIters"
                         value={maxIters}
-                        onChange={handleMaxItersInputChange}
+                        onChange={handle}
                         style={{ marginLeft: "10px", marginRight: "10px", padding: "5px", width: "100px" }}
                     />
                 </label>

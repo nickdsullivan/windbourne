@@ -123,10 +123,11 @@ last_node = None
 
 @app.get("/start-navigation")
 
-def start_navigation(lat, long, alt, t_lat, t_long, t_alt, max_iters = 20):
+def start_navigation(lat, long, alt, t_lat, t_long, t_alt, max_iters = 20, beamWidth = 3):
     print(f"start-navigation")
     navigator = Navigator()
     max_iters = max(min(int(max_iters),100),1)
+    beamWidth = max(min(int(beamWidth),20),1)
     lat = float(lat)
     long = float(long)
     alt = float(alt)
@@ -134,7 +135,7 @@ def start_navigation(lat, long, alt, t_lat, t_long, t_alt, max_iters = 20):
     t_long = float(t_long)
     t_alt = float(t_alt)
     
-    navigator.set_values((lat, long, alt), (t_lat, t_long, t_alt), tolerance= 10, beam_width=5)
+    navigator.set_values((lat, long, alt), (t_lat, t_long, t_alt), tolerance= 10, beam_width=10)
     last_node = navigator.beam_search(max_iters)
     create_path_map(lat, long, alt, t_lat, t_long, t_alt, last_node, navigator=navigator)
     return JSONResponse(content = navigator.get_path_json(last_node))
