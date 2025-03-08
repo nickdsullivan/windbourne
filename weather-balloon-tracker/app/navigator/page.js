@@ -29,10 +29,11 @@ function NavigatorContent() {
 
 
     useEffect(() => {
-        let url = `http://localhost:8000/get-directions-map?balloon_id=${balloonId}&hour=0&x=${targetPosition.lat}&y=${targetPosition.long}`
+        let url = `https://dear-jolly-sunbeam.ngrok-free.app/get-directions-map?balloon_id=${balloonId}&hour=0&x=${targetPosition.lat}&y=${targetPosition.long}`
         if (!hasDirections) {
-            url = `http://localhost:8000/single-balloon-map-navigator?balloon_id=${balloonId}&hour=0&x=${targetPosition.lat}&y=${targetPosition.long}`
+            url = `https://dear-jolly-sunbeam.ngrok-free.app/single-balloon-map-navigator?balloon_id=${balloonId}&hour=0&x=${targetPosition.lat}&y=${targetPosition.long}`
         }
+        console.log(url);
         fetch(url, {
             method: 'GET',
             headers: {
