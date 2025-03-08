@@ -1,34 +1,32 @@
 import requests, json
 import pandas as pd
+pd.options.mode.chained_assignment = None  # default='warn'
 from datetime import datetime, timedelta, timezone
 import time
 import numpy as np
-from tools import earth_distance, convert_time_string_meteo, calculate_euclidean_distance_with_elevation, elevation_to_pressure
+import math
+from src.tools import earth_distance, convert_time_string_meteo, elevation_to_pressure, move_distance_to_lat_long
 class DataCollector:
     def __init__(self):
         self.balloon_data       = pd.read_csv("./data/Windborne.csv")
         self.winddata       = pd.read_csv("./data/data.csv")
-        self.windborne_filename = "./data/Windborne.csv"
+        self.balloon_data_filename = "./data/Windborne.csv"
 
-        self.data_filename      = "./data/data.csv"
+        self.wind_data_filename      = "./data/data.csv"
         self.number_of_balloons = 1000
         self.latest_collection_time = pd.to_datetime(self.balloon_data["Datetime"].max())
-        
+        self.num_calls = 0
         self.elevations= [0.11, 0.32, 0.5, 0.8, 1.0, 1.5, 1.9, 3.0, 4.2, 5.6, 7.2, 9.2, 10.4, 11.8, 13.5, 15.8, 17.7, 19.3, 22.0]
     def download_windborne_data(self):
         current_time = datetime.now(timezone.utc).replace(tzinfo=None)
         
         
         # If we are on the last minute just wait.  I don't want to deal with it
-        if current_time.minute == 59:
-            print("Too close to the update point waiting a minute or two")
-            time.sleep(120 - current_time.second)
-            current_time = datetime.now(timezone.utc).replace(tzinfo=None)
-
         time = current_time.replace(minute=0, second=0, microsecond=0)
         self.latest_collection_time = time
-        
+        time = time + timedelta(hours=1) # We have to subtract at the beginning so just add one here
         for hour in range(24):
+            time = time - timedelta(hours=1)
             if hour < 10 and hour >= 0:
                 url = f"https://a.windbornesystems.com/treasure/0{hour}.json"
             elif hour < 24:
@@ -36,10 +34,8 @@ class DataCollector:
             else:
                 raise IndexError
             response = requests.get(url)
-            time = time - timedelta(hours=hour)
             if response.status_code != 200:
-                # If we get a non regular response we log it as bad
-                
+                print(f"({hour}) Failed")
                 # We know there are 1000 balloons.  It is nice this doesn't change
                 for balloon in range(1000):
                     balloon_row = {
@@ -50,9 +46,11 @@ class DataCollector:
                         "Elevation": np.nan,
                         "Speed": np.nan,
                         "Bearing": np.nan,
+                        "Hour": hour,
                     }
                     self.balloon_data.loc[len(self.balloon_data)] = balloon_row
                 continue
+            print(f"({hour}) Succeeded")
             # We got a regular response code.  Get the text
             raw_data = response.text
             # I noticed how you were currupting the json :)
@@ -73,14 +71,14 @@ class DataCollector:
                        "Elevation": data[balloon][2],
                        "Speed": np.nan,
                        "Bearing": np.nan,
+                       "Hour": hour,
                        }
                 self.balloon_data.loc[len(self.balloon_data)]= balloon_row
         self.balloon_data = self.balloon_data.drop_duplicates()
         self.balloon_data = self.balloon_data.reset_index(drop=False)
-        self.balloon_data.to_csv(self.windborne_filename,index=False)
-    
-        self.clear_wind()
+        self.balloon_data.to_csv(self.balloon_data_filename,index=False)
     def add_balloon_speed(self):
+
         times = pd.to_datetime(self.balloon_data["Datetime"]).unique().tolist()
         for time in times:
             df = self.balloon_data[pd.to_datetime(self.balloon_data["Datetime"]) == time]
@@ -92,11 +90,19 @@ class DataCollector:
                 row2 = df2[df2["Balloon"] == balloon_number]
                 loc1 = (row["Latitude"].iloc[0], row ["Longitude"].iloc[0], row["Elevation"].iloc[0])
                 loc2 = (row2["Latitude"].iloc[0], row2["Longitude"].iloc[0], row2["Elevation"].iloc[0])
-                balloon_speed, balloon_bearing = calculate_euclidean_distance_with_elevation(loc1,loc2)
+                balloon_speed, balloon_bearing = earth_distance(loc1,loc2)
                 self.balloon_data.loc[row.index, "Speed"] = balloon_speed
                 self.balloon_data.loc[row.index, "Bearing"] = balloon_bearing
-        self.balloon_data.to_csv(self.windborne_filename,index=False)
+        self.balloon_data.to_csv(self.balloon_data_filename,index=False)
     
+    def hour2time(self, hour):
+        # This is a weird function it ADDS hours to the current hour.  So If you are going into the future pass a negative hour...
+        time_zero = self.balloon_data[self.balloon_data["Hour"] == 0]["Datetime"].iloc[0]
+        time_zero = datetime.strptime(time_zero, "%Y-%m-%d %H:%M:%S")
+        time = time_zero + timedelta(hours=hour)
+        return time
+    def save_balloon_data(self):
+        self.balloon_data.to_csv(self.balloon_data_filename,index=False)
     # Doesn't save the wind data as a csv
     def get_wind(self, lat, long, time = None) -> pd.DataFrame:
         if time == None:
@@ -108,9 +114,10 @@ class DataCollector:
         df = self.get_wind_data_from_csv(lat, long, time)
         if len(df) != 0:
             return df
-
+        self.num_calls += 1
         speeds, bearings = self.get_meteo_data(lat, long, time, pressures)
         if speeds is None or bearings is None:
+            print("shooot")
             return df
         for i in range(len(speeds)):
             new_row = {
@@ -123,18 +130,25 @@ class DataCollector:
                 "Bearing": bearings[i]
             }
             df.loc[len(df)] = new_row
-
         return df  
 
+
+   
+
     # saves the wind in the wind column csv and returns a new dataframe with only that dat
-    def save_wind(self, lat, long, time = None) -> pd.DataFrame:
+    def get_and_save_wind(self, lat, long, time = None) -> pd.DataFrame:
         if time == None:
             time = self.latest_collection_time
         pressures = []
         for elevation in self.elevations:
             pressures.append(elevation_to_pressure(elevation))
+        df = self.get_wind_data_from_csv(lat, long, time)
+        if len(df) != 0:
+            return df
         df = self.winddata.iloc[0:0]
-        speeds, bearings = self.get_meteo_data(lat, long, time, pressures)
+        end_time = (time + timedelta(days = 1)).strftime("%Y-%m-%d")
+        start_time   = time.strftime("%Y-%m-%d")
+        speeds, bearings = self.get_meteo_data(lat, long, time, pressures, start_date = start_time, end_date = end_time)
         if speeds is None or bearings is None:
             return df
         for i in range(len(speeds)):
@@ -147,25 +161,37 @@ class DataCollector:
                 "Speed": speeds[i],
                 "Bearing": bearings[i]
             }
+            
             self.winddata.loc[len(self.winddata)] = new_row
             df.loc[len(df)] = new_row
         self.winddata = self.winddata.drop_duplicates()   
-        self.winddata.to_csv(self.data_filename, index=False)
+        self.winddata.to_csv(self.wind_data_filename, index=False)
         return df
 
 
-    def get_meteo_data(self, latitude, longitude, current_time, pressures = [250]):
+    def get_wind_data_from_csv(self, lat, long, time):
+        df = self.winddata[self.winddata["Datetime"].astype(str) == str(time)]
+        df = df[df["Latitude"] == lat]
+        df = df[df["Longitude"] == long]
+        return df
+    
+    def get_meteo_data(self, latitude, longitude, current_time, pressures = [250], start_date = None, end_date = None):
         url = "https://api.open-meteo.com/v1/forecast"
         data_cats = []
         for pressure in pressures:
             data_cats.append(f"wind_speed_{pressure}hPa")
             data_cats.append(f"wind_direction_{pressure}hPa")
         params = {
-            "latitude": latitude,
-            "longitude": longitude,
-            "current": data_cats,
+            "latitude": float(latitude),
+            "longitude": float(longitude),
             "hourly": data_cats,
         }
+        if not start_date is None and not end_date is None:
+            params["start_date"] = start_date
+            params["end_date"]   = end_date
+        else:
+            params["current"]    = data_cats,
+        
         try:
             response = requests.get(url, params=params)
             response.raise_for_status()  # Raise HTTPError for bad responses (4xx or 5xx)
@@ -173,24 +199,23 @@ class DataCollector:
             times = list(map(convert_time_string_meteo, data["hourly"]["time"]))
             speeds = []
             directions = []
-            # print(type(current_time))
-            #current_time = datetime.strptime(current_time, "%Y-%m-%d %H:%M:%S")
+
             for pressure in pressures:
                 speeds.append(data["hourly"][f"wind_speed_{pressure}hPa"][times.index(current_time)])
                 directions.append(data["hourly"][f"wind_direction_{pressure}hPa"][times.index(current_time)])
             return speeds, directions
 
         except requests.exceptions.RequestException as e:
-            print(f"An error occurred: {e}")
+            print(f"An error occurred: {print(params)}")
+            print(e)
+            print(f"{url}")
             return None, None
         except ValueError as e: # Catch json decode errors
             print(f"Invalid JSON response: {e}, response text: {response.text}")
             return None, None
         
-
-
     def clear_wind(self):
-        self.winddata = pd.DataFrame(columns=[ 
+        self.winddata   = pd.DataFrame(columns=[ 
                         "Datetime", 
                         "Latitude",
                         "Longitude",
@@ -199,6 +224,7 @@ class DataCollector:
                         "Speed",
                         "Bearing",
                         ])
+        self.winddata.to_csv(self.wind_data_filename, index=False)
     def clear_balloon(self):
         self.balloon_data = pd.DataFrame(columns=[
                         "Balloon",
@@ -208,7 +234,9 @@ class DataCollector:
                         "Elevation",
                         "Speed",
                         "Bearing",
+                        "Hour",
         ])  
+        self.balloon_data.to_csv(self.balloon_data_filename, index=False)
     def clear(self):
         self.clear_balloon()
         self.clear_wind()
@@ -219,23 +247,224 @@ class DataCollector:
         df = df[df["Longitude"] == long]
         return len(df == 0)
     
-    def get_wind_data_from_csv(self, lat, long, time):
-        df = self.winddata[self.winddata["Datetime"].astype(str) == str(time)]
-
-        df = df[df["Latitude"] == lat]
-        df = df[df["Longitude"] == long]
-        return df
+   
     
     def get_balloon_data_at_time(self, time)-> pd.DataFrame: 
         df = self.balloon_data[self.balloon_data["Datetime"].astype(str) == str(time)]
         return df
     
-
-    def get_balloon_location(self, number, time = None):
-        if time is None:
-            time = self.latest_collection_time
-        df = self.get_balloon_data_at_time(time)
-        
+    def get_balloon_location(self, number, hour = 0):
+        df = self.balloon_data
+        df = df[df["Hour"] == hour]
         df = df[df["Balloon"] == number]
+        return df["Latitude"].iloc[0], df["Longitude"].iloc[0], df["Elevation"].iloc[0]
+
         
-        return df["Latitude"].iloc[0], df["Longitude"].iloc[0]
+    def get_balloon_details(self, number, hour = 0):
+        df = self.balloon_data
+        df = df[df["Hour"] == hour]
+        df = df[df["Balloon"] == number]
+        return df["Latitude"].iloc[0], df["Longitude"].iloc[0], df["Elevation"].iloc[0], df["Speed"].iloc[0], df["Bearing"].iloc[0]
+
+
+    def get_balloon_details_as_json(self, number, hour = 0):
+        df = self.balloon_data
+        df = df[df["Hour"] == hour]
+        df = df[df["Balloon"] == number]
+        return {"lat" : df["Latitude"].iloc[0], "long" : df["Longitude"].iloc[0], "alt":  df["Elevation"].iloc[0], "speed": df["Speed"].iloc[0], "bearing": df["Bearing"].iloc[0]}
+
+
+    def fill_missing_hours(self, start_hour, end_hour):
+        left = start_hour
+        right  = start_hour + 1
+        start_flag = False
+        df = self.balloon_data
+        while left != end_hour:
+            
+            if right >= end_hour:
+                    right_data = df[df["Hour"] == right]
+                    left_data = df[df["Hour"] == left]
+                    right_data = right_data.reset_index(drop=True)
+                    left_data = left_data.reset_index(drop=True)
+                    idx = df[df["Hour"] == left + 1].index
+                    assert len(idx) != 0, "No data for day requested"
+
+                    loc1 = left_data["Latitude"].to_numpy(), left_data["Longitude"].to_numpy(),left_data["Elevation"].to_numpy()
+                    lat, long = move_distance_to_lat_long(left_data["Latitude"].to_numpy(), left_data["Longitude"].to_numpy(), left_data["Speed"].to_numpy(), left_data["Bearing"].to_numpy())
+                    loc2 = lat, long, left_data["Elevation"].to_numpy()
+
+                    speed, bearing = earth_distance(loc1,loc2)
+
+                    df.loc[idx, "Latitude"]  = loc2[0]
+                    df.loc[idx, "Longitude"] = loc2[1]
+                    df.loc[idx, "Elevation"] = left_data["Elevation"].values
+                    df.loc[idx, "Speed"]     = speed
+                    df.loc[idx, "Bearing"]   = bearing
+
+
+                    left = left + 1
+                    continue
+                
+            if df[df["Hour"] == right]["Latitude"].isna().all():
+                if right == start_hour:
+                    start_flag = True
+                right = right + 1
+                continue
+            else:
+                difference = right - left
+                if difference < 2:
+                    
+                    right = right + 1
+                    left = left + 1
+                else:
+                    
+                    # Since left != right then we moved left and we interpolate the middle ones
+                    left_data = df[df["Hour"] == left]
+                    right_data = df[df["Hour"] == right]
+                    right_data = right_data.reset_index(drop=True)
+                    left_data = left_data.reset_index(drop=True)
+
+                   
+                    if start_flag:
+                        idx = df[df["Hour"] == left].index
+
+
+                        loc1 = right_data["Latitude"].to_numpy(), right_data["Longitude"].to_numpy(),  right_data["Elevation"].to_numpy()
+                        lat, long = move_distance_to_lat_long(right_data["Latitude"].to_numpy(), right_data["Longitude"].to_numpy(), right_data["Speed"].to_numpy(), right_data["Bearing"].to_numpy())
+                        loc2 = lat, long, right_data["Elevation"].to_numpy()
+                        speed, bearing = earth_distance(loc1,loc2)
+
+                        df.loc[idx, "Longitude"] = loc2[0]
+                        df.loc[idx, "Latitude"]  = loc2[1]
+                        df.loc[idx, "Elevation"] = right_data["Elevation"].values
+                        df.loc[idx, "Speed"]     = speed
+                        df.loc[idx, "Bearing"]   = bearing
+                        left = left + 1
+                       
+                    else: 
+
+                        idx = df[df["Hour"] == left + 1].index
+                        
+
+
+                        lat  = left_data["Latitude"].values +  (right_data["Latitude"].values  - left_data["Latitude"].values )/difference
+                        long = left_data["Longitude"].values + (right_data["Longitude"].values - left_data["Longitude"].values)/difference
+                        alt  = left_data["Elevation"].values + (right_data["Elevation"].values - left_data["Elevation"].values)/difference
+
+
+                        loc1 = left_data["Latitude"].to_numpy(), left_data["Longitude"].to_numpy(), left_data["Elevation"].to_numpy()
+                        loc2 = lat, long, alt
+                        df.loc[idx, "Latitude"]  = lat
+                        df.loc[idx, "Longitude"] = long
+                        df.loc[idx, "Elevation"] = alt
+                        speed, bearing = earth_distance(loc1, loc2)
+                        df.loc[idx, "Speed"]   = speed
+                        df.loc[idx, "Bearing"] = bearing
+
+
+
+                        # we also calculate the right side speed!
+
+                        loc1 = lat, long, alt
+                        loc2 = right_data["Latitude"].to_numpy(), right_data["Latitude"].to_numpy(),  right_data["Elevation"].to_numpy()
+                        speed, bearing = earth_distance(loc1, loc2)
+                        idx = df[df["Hour"] == right].index
+                        df.loc[idx, "Speed"]   = speed
+                        df.loc[idx, "Bearing"] = bearing
+
+                        left = left + 1
+                        
+                    
+        self.balloon_data = df
+        self.add_balloon_speed()
+        self.save_balloon_data()
+        
+    
+    def fill_missing_data(self):
+
+            df = self.balloon_data
+            lat_indices  =  df[df["Latitude"].isna()].index
+            long_indices =  df[df["Longitude"].isna()].index
+            alt_indices  =  df[df["Elevation"].isna()].index
+            self.find_values(df, lat_indices, "Latitude")
+            self.find_values(df, long_indices, "Longitude")
+            self.find_values(df, alt_indices, "Elevation")
+            self.add_balloon_speed()
+            self.save_balloon_data()
+
+    def find_values(self,df, indices, column):
+        df = df.loc[indices]
+        for index in df.index:
+            row = df.loc[index]
+            balloons = self.balloon_data[self.balloon_data["Balloon"] == row["Balloon"]]
+            hour = row["Hour"]
+            left = hour - 1
+            right = hour + 1
+            while left >= 0 or right <= df["Hour"].max():
+                # Edge case most recent
+                if left < 0 and right <= df["Hour"].max():
+                    right_val = float('nan')
+
+                    if len(balloons[balloons["Hour"] == right][column]) != 0:
+                        right_val = balloons[balloons["Hour"] == right][column].iloc[0]
+
+                    # If right latitude exists
+                    if not np.isnan(right_val):
+                        # If the next latitude is good then we hopefully have a full row and we estimate with 
+                        right_data = balloons[balloons["Hour"] == right]
+                        right_data = right_data.reset_index(drop=True)
+                        lat, long = move_distance_to_lat_long(right_data["Latitude"].values, right_data["Longitude"].values, right_data["Speed"].values, right_data["Bearing"].values)
+                        if column == "Latitude":
+                            self.balloon_data.loc[index, column] =  lat
+                        if column == "Longitude":
+                            self.balloon_data.loc[index, column] =  long
+                        if column == "Elevation":
+                            self.balloon_data.loc[index, column] =  right_data["Elevation"].values
+                        
+                        break
+                    else:
+                        right = right + 1
+                        continue
+                # Edgecase back in time
+                if right > df["Hour"].max() and left >= 0:
+                    left_val = float('nan')
+                    if len(balloons[balloons["Hour"] == left][column]) != 0:
+                        left_val = balloons[balloons["Hour"] == left][column ].iloc[0]
+
+                    # if the left lat exists
+                    if not np.isnan(left_val):
+                        left_data = balloons[balloons["Hour"] == left]
+                        left_data = left_data.reset_index(drop=True)
+
+                        lat, long = move_distance_to_lat_long(left_data["Latitude"].values, left_data["Longitude"].values, left_data["Speed"].values, left_data["Bearing"].values)
+
+                        if column == "Latitude":
+                            self.balloon_data.loc[index, column] = lat
+                        if column == "Longitude":
+                            self.balloon_data.loc[index, column] = long
+                        if column == "Elevation":
+                            self.balloon_data.loc[index, column] = right_data["Elevation"].values
+                        break
+                    else:
+                        left = left - 1
+                        continue
+
+                # Find the values around it and estimate it 
+                if left >= 0 and right <= df["Hour"].max():
+                    left_val = float('nan') 
+                    right_val = float('nan')
+                    if len(balloons[balloons["Hour"] == left][column ]) != 0:
+                        left_val  = balloons[balloons["Hour"] == left][column ].iloc[0]
+                    if len(balloons[balloons["Hour"] == right][column]) != 0:
+                        right_val = balloons[balloons["Hour"] == right][column].iloc[0]
+
+                    # If they exist
+                    if not np.isnan(left_val) and not np.isnan(right_val):
+                        self.balloon_data.loc[index, column] =  left_val + (right_val - left_val)/(right_val-left_val)
+                        
+                        break
+                    
+                    else:
+                        left  = left  - 1
+                        right = right + 1
+            

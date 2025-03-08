@@ -201,7 +201,7 @@ export default function Home() {
         <div
           style={{
             width: "800px",       // or 300px, your choice
-            height: "400px",      // fixed height for the scroll
+            height: "800px",      // fixed height for the scroll
             overflowY: "auto",    // scrollable
             border: "1px solid #ccc",
             padding: "rem",
@@ -209,15 +209,23 @@ export default function Home() {
             textAlign: "left",
           }}
         >
-          <h3>All Balloons</h3>
+          <h1>Description and project notes</h1>
+          <h3>Overview</h3>
           <p>
             {/* Filler text for now */}
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla quis neque eget
-            quam feugiat malesuada. Quisque fermentum quam at bibendum ullamcorper.
-            Aliquam rhoncus neque nunc, in fringilla dui gravida quis. Integer dictum
-            efficitur fringilla. Curabitur pretium cursus ipsum, quis porta turpis
-            blandit ac.
+            The goal of this project is use the variation in the over different altitudes to control where the positions of balloons. 
+            To get the wind data I open meteo is used.  For the balloon data I use the data you provided.  I interpolate and exterpolate the missing data.  
           </p>
+          <h3>Usage</h3>
+          <p>
+            {/* Filler text for now */}
+            There are two componets of this site.  The first is the tracker.  It shows where the balloons are (or estimated to be) for the past 24 hours.
+            You can click on a balloon and view its details.  It will also provide you with a visualization of the wind column (wind speed and direction over all altitudes). It might take a little bit.  You can then click "navigate this balloon".  That will bring you to the navigation page.  There you can click on the map for a target location.  (The world is very large click on a place close to the balloon).  Then click navigate.  It will take a while but it will try and come up with directions.  Some times the wind won't be favorable and it will not be possible.  It is set to stop within 5km of the target location.  I use beam search to the directions.  Heuristic algorithm is needed because of the size of the search space.
+
+            <strong>  Open Meteo has a rate limit of 10,000 queries a day.  If you do many high iteration navigations it will be reached and you will have to retry tomorrow.</strong>
+
+          </p>
+          <h3>Usage</h3>
           <p>
             Cras at dui viverra, hendrerit metus eget, condimentum diam. Integer id orci
             id justo lobortis dignissim. Proin consequat odio ac vestibulum porttitor.
