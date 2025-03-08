@@ -64,6 +64,8 @@ def get_balloon_map(balloon_id, hour=0):
     if os.path.exists(filename):
         response = FileResponse(filename, media_type="image/gif")
         response.headers["Access-Control-Allow-Origin"] = "*" 
+        response.headers["Access-Control-Allow-Methods"] = "GET"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type"
         return response
     else:
         return {"error": "Image not found"}
