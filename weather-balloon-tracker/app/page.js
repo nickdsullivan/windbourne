@@ -219,7 +219,7 @@ export default function Home() {
           <h3>Usage</h3>
           <p>
             {/* Filler text for now */}
-            
+            Idk anymore
           </p>
           <h3>Usage</h3>
           <p>
