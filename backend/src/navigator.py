@@ -34,7 +34,7 @@ class Navigator:
     def __init__(self):
         self.dc               = DataCollector()
 
-    def set_values(self, starting_location, target_location, tolerance = 5, beam_width = 3):
+    def set_values(self, starting_location, target_location, tolerance = 10, beam_width = 5):
         self.current_id       = 0
         self.hour             = 0
         self.current_node     = self.add_node(lat = starting_location[0], long = starting_location[1], alt = -1, hour = self.hour, parent=None, distance = earth_distance(starting_location, target_location)[0])
