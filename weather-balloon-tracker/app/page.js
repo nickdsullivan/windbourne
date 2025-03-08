@@ -5,7 +5,7 @@ export default function Home() {
   const [refreshTime, setRefreshTime] = useState(null);
   const [selectedHour, setSelectedHour] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  
+
   const [windColumn, getWindColumn] = useState(false);
   // Store the balloon positions, each assumed to have { id, x, y } in ORIGINAL coords
   const [balloonPositions, setBalloonPositions] = useState([]);
@@ -213,8 +213,8 @@ export default function Home() {
           <h3>Overview</h3>
           <p>
             {/* Filler text for now */}
-            The goal of this project is use the variation in the over different altitudes to control where the positions of balloons. 
-            To get the wind data I open meteo is used.  For the balloon data I use the data you provided.  I interpolate and exterpolate the missing data.  
+            The goal of this project is use the variation in the over different altitudes to control where the positions of balloons.
+            To get the wind data I open meteo is used.  For the balloon data I use the data you provided.  I interpolate and exterpolate the missing data.
           </p>
           <h3>Usage</h3>
           <p>
@@ -233,8 +233,6 @@ export default function Home() {
             imperdiet augue. Etiam blandit pharetra lorem, eu ornare ligula pretium ut.
           </p>
         </div>
-
-        {/* CENTER: Map (with the absolute circle overlay) */}
         <div style={{ position: "relative", display: "inline-block" }}>
           <img
             ref={imgRef}
@@ -271,10 +269,6 @@ export default function Home() {
           )}
 
         </div>
-
-
-
-
         {/* RIGHT: Balloon details and GIF */}
         <div
           style={{
