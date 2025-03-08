@@ -16,8 +16,6 @@ export default function Home() {
   const [originalImageSize] = useState({ width: 1280, height: 1275 });
   // The actual rendered (on-screen) size of the <img>
   const [displayedImageSize, setDisplayedImageSize] = useState({ width: 0, height: 0 });
-
-
   useEffect(() => {
     fetchRefreshTime(); // Get the latest refresh time on page load
     updateImageSize();
