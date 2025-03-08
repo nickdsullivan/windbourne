@@ -191,9 +191,9 @@ function NavigatorContent() {
                     Maximium iteration:
                     <input
                         type="number"
-                        name="beamWidth"
-                        value={beamWidth}
-                        onChange={handleBeamWidthInputChange}
+                        name="maxIters"
+                        value={maxIters}
+                        onChange={handleMaxItersInputChange}
                         style={{ marginLeft: "10px", marginRight: "10px", padding: "5px", width: "100px" }}
                     />
                 </label>
@@ -201,9 +201,9 @@ function NavigatorContent() {
                     Beam Width:
                     <input
                         type="number"
-                        name="maxIters"
-                        value={maxIters}
-                        onChange={handle}
+                        name="beamWidth"
+                        value={beamWidth}
+                        onChange={handleBeamWidthInputChange}
                         style={{ marginLeft: "10px", marginRight: "10px", padding: "5px", width: "100px" }}
                     />
                 </label>
