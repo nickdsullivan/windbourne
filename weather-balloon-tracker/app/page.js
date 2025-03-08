@@ -43,7 +43,12 @@ export default function Home() {
   const handleRefreshClick = () => {
     setIsRefreshing(true);
 
-    fetch("https://dear-jolly-sunbeam.ngrok-free.app/refresh-data")
+    fetch("https://dear-jolly-sunbeam.ngrok-free.app/refresh-data", {
+	  method: 'GET', // or 'POST', etc.
+	  headers: {
+	    'ngrok-skip-browser-warning': 'true'
+	  }
+	})))
       .then((response) => {
         if (!response.ok) {
           print(response)
@@ -66,7 +71,12 @@ export default function Home() {
 
   // Function to fetch the latest refresh time
   const fetchRefreshTime = () => {
-    fetch("https://dear-jolly-sunbeam.ngrok-free.app/get-refresh-time")
+    fetch("https://dear-jolly-sunbeam.ngrok-free.app/get-refresh-time", {
+	  method: 'GET', // or 'POST', etc.
+	  headers: {
+	    'ngrok-skip-browser-warning': 'true'
+	  }
+	})))
       .then((response) => response.json())
       .then((data) => {
         // Convert UTC to local time
@@ -91,7 +101,12 @@ export default function Home() {
 
 
   useEffect(() => {
-    fetch(`https://dear-jolly-sunbeam.ngrok-free.app/get-positions?hour=${selectedHour}`)
+    fetch(`https://dear-jolly-sunbeam.ngrok-free.app/get-positions?hour=${selectedHour}`, {
+	  method: 'GET', // or 'POST', etc.
+	  headers: {
+	    'ngrok-skip-browser-warning': 'true'
+	  }
+	})))
       .then((res) => res.json())
       .then((data) => setBalloonPositions(data))
       .catch((error) => console.error("Error fetching positions:", error));
@@ -236,7 +251,12 @@ export default function Home() {
         <div style={{ position: "relative", display: "inline-block" }}>
           <img
             ref={imgRef}
-            src={`https://dear-jolly-sunbeam.ngrok-free.app/balloon-map?hour=${selectedHour}`}
+            src={`https://dear-jolly-sunbeam.ngrok-free.app/balloon-map?hour=${selectedHour}`, {
+		  method: 'GET', // or 'POST', etc.
+		  headers: {
+		    'ngrok-skip-browser-warning': 'true'
+		  }
+		}))}
             alt="Weather Balloon Map"
             onLoad={handleImageLoad}
             onClick={handleImageClick}

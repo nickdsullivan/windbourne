@@ -27,7 +27,12 @@ function NavigatorContent() {
     const imgRef = useRef(null);
 
     useEffect(() => {
-        fetch(`https://dear-jolly-sunbeam.ngrok-free.app//balloon-details?balloon_id=${balloonId}&hour=0`)
+        fetch(`https://dear-jolly-sunbeam.ngrok-free.app//balloon-details?balloon_id=${balloonId}&hour=0`, {
+		  method: 'GET', // or 'POST', etc.
+		  headers: {
+		    'ngrok-skip-browser-warning': 'true'
+		  }
+		})))
             .then((res) => res.json())
             .then((data) => {
                 setBalloonPosition(data);
@@ -73,7 +78,12 @@ function NavigatorContent() {
         console.log(targetPosition);
         console.log(maxIters);
 
-        fetch(`https://dear-jolly-sunbeam.ngrok-free.app/start-navigation?lat=${balloonPosition.lat}&long=${balloonPosition.long}&alt=${balloonPosition.alt}&t_lat=${targetPosition.lat}&t_long=${targetPosition.long}&t_alt=${targetPosition.alt}&max_iters=${maxIters}`)
+        fetch(`https://dear-jolly-sunbeam.ngrok-free.app/start-navigation?lat=${balloonPosition.lat}&long=${balloonPosition.long}&alt=${balloonPosition.alt}&t_lat=${targetPosition.lat}&t_long=${targetPosition.long}&t_alt=${targetPosition.alt}&max_iters=${maxIters}`, {
+		  method: 'GET', // or 'POST', etc.
+		  headers: {
+		    'ngrok-skip-browser-warning': 'true'
+		  }
+		})))
             .then((response) => {
                 if (!response.ok) {
                     throw new Error("Failed to get path");
