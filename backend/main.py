@@ -29,7 +29,7 @@ def refresh_data():
     dc.download_windborne_data()
     dc.add_balloon_speed()
     dc.fill_missing_hours(0, 23)
-    return {"Status", "ok"}
+    return {"Status": "ok"}
 
 
 
