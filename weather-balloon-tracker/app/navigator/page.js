@@ -46,7 +46,9 @@ function NavigatorContent() {
                 setMapImageUrl(imageObjectUrl);
             })
             .catch((error) => console.error("Error fetching image:", error));
-    }, [selectedHour]); // Re-fetch image when `selectedHour` changes
+    }, [targetPosition?.lat, targetPosition?.long]); // Re-fetch image when `selectedHour` changes
+
+
     useEffect(() => {
         fetch(`https://dear-jolly-sunbeam.ngrok-free.app/balloon-details?balloon_id=${balloonId}&hour=0`, {
             method: 'GET',
