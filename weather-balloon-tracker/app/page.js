@@ -43,7 +43,7 @@ export default function Home() {
   const handleRefreshClick = () => {
     setIsRefreshing(true);
 
-    fetch("https://windbourne-gfgd.onrender.com/refresh-data")
+    fetch("https://dear-jolly-sunbeam.ngrok-free.app/refresh-data")
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to refresh data");
@@ -64,7 +64,7 @@ export default function Home() {
 
   // Function to fetch the latest refresh time
   const fetchRefreshTime = () => {
-    fetch("https://windbourne-gfgd.onrender.com/get-refresh-time")
+    fetch("https://dear-jolly-sunbeam.ngrok-free.app/get-refresh-time")
       .then((response) => response.json())
       .then((data) => {
         // Convert UTC to local time
@@ -89,7 +89,7 @@ export default function Home() {
 
 
   useEffect(() => {
-    fetch(`https://windbourne-gfgd.onrender.com/get-positions?hour=${selectedHour}`)
+    fetch(`https://dear-jolly-sunbeam.ngrok-free.app/get-positions?hour=${selectedHour}`)
       .then((res) => res.json())
       .then((data) => setBalloonPositions(data))
       .catch((error) => console.error("Error fetching positions:", error));
@@ -234,7 +234,7 @@ export default function Home() {
         <div style={{ position: "relative", display: "inline-block" }}>
           <img
             ref={imgRef}
-            src={`https://windbourne-gfgd.onrender.com/balloon-map?hour=${selectedHour}`}
+            src={`https://dear-jolly-sunbeam.ngrok-free.app/balloon-map?hour=${selectedHour}`}
             alt="Weather Balloon Map"
             onLoad={handleImageLoad}
             onClick={handleImageClick}
@@ -288,7 +288,7 @@ export default function Home() {
               <p><strong>Bearing:</strong> {selectedBalloon.bearing.toFixed(2) ?? "N/A"}°</p>
               <div style={{ marginTop: "1rem", textAlign: "center" }}>
                 <img
-                  src={`https://windbourne-gfgd.onrender.com/wind-column?balloon_id=${selectedBalloon.id}&hour=${selectedHour}`}
+                  src={`https://dear-jolly-sunbeam.ngrok-free.app/wind-column?balloon_id=${selectedBalloon.id}&hour=${selectedHour}`}
                   alt={`Wind Column for balloon #${selectedBalloon.id}`}
                   style={{
                     maxWidth: "100%",
