@@ -46,10 +46,10 @@ export default function Home() {
     fetch("https://dear-jolly-sunbeam.ngrok-free.app/refresh-data")
       .then((response) => {
         if (!response.ok) {
-          print(response)
+          console.log(response);
           throw new Error("Failed to refresh data");
         }
-        print(response)
+        console.log(response);
         return response.json();
       })
       .then((data) => {
