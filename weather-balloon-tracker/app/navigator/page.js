@@ -27,7 +27,7 @@ function NavigatorContent() {
     const imgRef = useRef(null);
 
     useEffect(() => {
-        fetch(`https://dear-jolly-sunbeam.ngrok-free.app//balloon-details?balloon_id=${balloonId}&hour=0`, {
+        fetch(`https://dear-jolly-sunbeam.ngrok-free.app/balloon-details?balloon_id=${balloonId}&hour=0`, {
             method: 'GET',
             headers: {
                 'ngrok-skip-browser-warning': 'true'
