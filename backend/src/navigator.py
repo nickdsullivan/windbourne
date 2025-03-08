@@ -61,11 +61,6 @@ class Navigator:
             
             closest_node = self.get_closest_node(self.current_list)
             print(f"{index/max_iters:.2f} {closest_node}")
-            # number_of_parents = min(self.beam_width, len(self.current_list))
-            # if number_of_parents == 0:
-            #     self.current_list.append(node)
-            #     number_of_parents = 1
-            #     print("Fml\n"*10)
             for j in range(len(self.current_list)):
                 node = self.current_list[j]
                 children = self.explore_node(node)

@@ -10,7 +10,7 @@ import math
 dc = DataCollector()
 df = dc.balloon_data
 visualizer = Visualizer()
-navigator = Navigator()
+
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
@@ -122,9 +122,11 @@ def single_balloon_map_navigator(balloon_id, hour = 0, x = -1, y = -1):
 last_node = None
 
 @app.get("/start-navigation")
+
 def start_navigation(lat, long, alt, t_lat, t_long, t_alt, max_iters = 20):
     print(f"start-navigation")
-    max_iters = max(min(int(max_iters),50),1)
+    navigator = Navigator()
+    max_iters = max(min(int(max_iters),100),1)
     lat = float(lat)
     long = float(long)
     alt = float(alt)
@@ -132,16 +134,16 @@ def start_navigation(lat, long, alt, t_lat, t_long, t_alt, max_iters = 20):
     t_long = float(t_long)
     t_alt = float(t_alt)
     
-    navigator.set_values((lat, long, alt), (t_lat, t_long, t_alt))
+    navigator.set_values((lat, long, alt), (t_lat, t_long, t_alt), tolerance= 10, beam_width=5)
     last_node = navigator.beam_search(max_iters)
-    create_path_map(lat, long, alt, t_lat, t_long, t_alt, last_node)
+    create_path_map(lat, long, alt, t_lat, t_long, t_alt, last_node, navigator=navigator)
     return JSONResponse(content = navigator.get_path_json(last_node))
 
 
 
 
 
-def create_path_map(lat, long, alt, t_lat, t_long, t_alt, last_node):
+def create_path_map(lat, long, alt, t_lat, t_long, t_alt, last_node, navigator):
     filename = f"images/current_path.png"
     result = visualizer.create_single_balloon_map(lat, long, alt, filename, image = None)
     
