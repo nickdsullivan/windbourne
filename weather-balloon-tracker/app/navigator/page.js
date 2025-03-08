@@ -14,7 +14,7 @@ export default function NavigatorPage() {
 function NavigatorContent() {
     const searchParams = useSearchParams();
     const balloonId = searchParams.get("balloonId");
-
+    const [mapImageUrl, setMapImageUrl] = useState(null);
     const [balloonPosition, setBalloonPosition] = useState({ lat: -1, long: -1, alt: -1, speed: -1, bearing: -1 });
     const [targetPosition, setTargetPosition] = useState({ lat: 0, long: 0, alt: balloonPosition.alt ?? -1 });
     const [maxIters, setMaxIters] = useState(20);
@@ -26,6 +26,27 @@ function NavigatorContent() {
 
     const imgRef = useRef(null);
 
+
+
+    useEffect(() => {
+        const url = `http://localhost:8000/get-directions-map?balloon_id=${balloonId}&hour=0&x=${targetPosition.lat}&y=${targetPosition.long}`
+        if (!hasDirections) {
+            url = `http://localhost:8000/single-balloon-map-navigator?balloon_id=${balloonId}&hour=0&x=${targetPosition.lat}&y=${targetPosition.long}`
+        }
+        fetch(url, {
+            method: 'GET',
+            headers: {
+                'ngrok-skip-browser-warning': 'true',
+            },
+        })
+
+            .then((response) => response.blob())
+            .then((blob) => {
+                const imageObjectUrl = URL.createObjectURL(blob);
+                setMapImageUrl(imageObjectUrl);
+            })
+            .catch((error) => console.error("Error fetching image:", error));
+    }, [selectedHour]); // Re-fetch image when `selectedHour` changes
     useEffect(() => {
         fetch(`https://dear-jolly-sunbeam.ngrok-free.app/balloon-details?balloon_id=${balloonId}&hour=0`, {
             method: 'GET',
@@ -125,19 +146,23 @@ function NavigatorContent() {
     };
 
     return (
+
         <main style={{ textAlign: "center", marginTop: "50px" }}>
             <h1>Navigate balloon #{balloonId} </h1>
-            <p>Click a spot on the map and press navigate #{balloonId}.</p>
+            <p>Click a spot on the map and press navigate #{balloonId}.  </p>
             <p>With Max iteration 100 it will roughly take up to 5 minutes to process</p>
-            <p>
-                <strong>Latitude:</strong> {balloonPosition.lat?.toFixed(2) ?? "N/A"}
-                <strong> Longitude:</strong> {balloonPosition.long?.toFixed(2) ?? "N/A"}
-                <strong> Altitude:</strong> {balloonPosition.alt?.toFixed(2) ?? "N/A"} km
-                <strong> Speed:</strong> {balloonPosition.speed?.toFixed(0) ?? "N/A"} km/h
-                <strong> Bearing:</strong> {balloonPosition.bearing?.toFixed(0) ?? "N/A"}°
-            </p>
+            <>
+                <p>
+                    <strong>Latitude:</strong> {balloonPosition.lat?.toFixed(2) ?? "N/A"}
+                    <strong> Longitude:</strong> {balloonPosition.long?.toFixed(2) ?? "N/A"}
+                    <strong> Altitude:</strong> {balloonPosition.alt?.toFixed(2) ?? "N/A"} km
+                    <strong> Speed:</strong> {balloonPosition.speed?.toFixed(0) ?? "N/A"} km/h
+                    <strong> Bearing:</strong> {balloonPosition.bearing?.toFixed(0) ?? "N/A"}°
+                </p>
+            </>
             <div>
                 <h3>Target Location </h3>
+
                 <label>
                     Latitude:
                     <input
@@ -168,10 +193,84 @@ function NavigatorContent() {
                         style={{ marginLeft: "10px", marginRight: "10px", padding: "5px", width: "100px" }}
                     />
                 </label>
+
             </div>
             <button onClick={handleNavigationClick} disabled={isNavigating}>
                 {isNavigating ? "Finding Path" : "Click to find path"}
             </button>
+
+            {balloonPosition ? (
+                <div
+                    style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        alignItems: "flex-start",
+                        gap: "1rem", // spacing between the three boxes
+                    }}
+                >
+
+                    <div
+                        style={{
+                            display: "flex",
+                            justifyContent: "center",
+                            alignItems: "flex-start",
+                            gap: "1rem", // spacing between the boxes
+                        }}
+                    >
+                        <div style={{ position: "relative", display: "inline-block" }}>
+                            {/* Use updated map URL after directions are calculated */}
+                            <img
+                                ref={imgRef}
+                                src={mapImageUrl}
+                                alt="Balloon Navigation Map"
+                                onLoad={handleImageLoad}
+                                onClick={handleImageClick}
+                                style={{
+                                    width: "100%", // or any size you prefer
+                                    height: "auto",
+                                    cursor: "pointer",
+                                    display: "block",
+                                }}
+                            />
+                        </div>
+                    </div>
+                </div>
+
+            ) : (
+                <p>Loading balloon position...</p>
+            )}
+            {hasDirections ? (
+                <div
+                    style={{
+                        display: "flex",
+                        flexDirection: "column",  // Stack items vertically
+                        justifyContent: "center",
+                        alignItems: "flex-start",
+                        gap: "1rem",  // spacing between the rows
+                        border: "2px solid #000",  // Add a border around the box
+                        padding: "1rem",  // Padding inside the box
+                        borderRadius: "8px",  // Optional: rounded corners
+                    }}
+                >
+                    <h3>Directions</h3>
+                    {directions.map((direction, index) => (
+                        <div key={index} style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
+                            <p>
+                                ({direction.time}):
+                                <strong> Go to Altitude:</strong> {direction.alt.toFixed(2)} km for 1 hour |
+                                <strong> Current Location:</strong> {direction.lat.toFixed(2)}, {direction.long.toFixed(2)} |
+                                <strong> Wind Speed:</strong> {direction.speed.toFixed(0)} km/h |
+                                <strong> Wind Bearing:</strong> {direction.bearing.toFixed(0)} |
+                                <strong> Distance:</strong> {direction.distance.toFixed(2)} |
+                            </p>
+                        </div>
+                    ))}
+                    <p><strong>You have reached your destination</strong></p>
+                </div>
+            ) : (
+                <p>No directions</p>
+            )}
+
         </main>
     );
 }

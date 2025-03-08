@@ -2,7 +2,8 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 export default function Home() {
-
+  const [mapImageUrl, setMapImageUrl] = useState(null);
+  const [windGIFUrl, setWindGIFUrl] = useState(null);
   const [refreshTime, setRefreshTime] = useState(null);
   const [selectedHour, setSelectedHour] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -16,6 +17,41 @@ export default function Home() {
   const [originalImageSize] = useState({ width: 1280, height: 1275 });
   // The actual rendered (on-screen) size of the <img>
   const [displayedImageSize, setDisplayedImageSize] = useState({ width: 0, height: 0 });
+
+
+  useEffect(() => {
+    fetch(`https://dear-jolly-sunbeam.ngrok-free.app/balloon-map?hour=${selectedHour}`, {
+      method: 'GET',
+      headers: {
+        'ngrok-skip-browser-warning': 'true',
+      },
+    })
+      .then((response) => response.blob()) 
+      .then((blob) => {
+        const imageObjectUrl = URL.createObjectURL(blob); 
+        setMapImageUrl(imageObjectUrl);
+      })
+      .catch((error) => console.error("Error fetching image:", error));
+  }, [selectedHour]); // Re-fetch image when `selectedHour` changes
+
+
+  useEffect(() => {
+    if (selectedBalloon){
+      fetch(`https://dear-jolly-sunbeam.ngrok-free.app/wind-column?balloon_id=${selectedBalloon.id}&hour=${selectedHour}`, {
+        method: 'GET',
+        headers: {
+          'ngrok-skip-browser-warning': 'true',
+        },
+      })
+        .then((response) => response.blob()) 
+        .then((blob) => {
+          const gifObjectUrl = URL.createObjectURL(blob); 
+          setWindGIFUrl(gifObjectUrl);
+        })
+        .catch((error) => console.error("Error fetching image:", error));
+  }}, [selectedHour,selectedBalloon?.id]); 
+
+
   useEffect(() => {
     fetchRefreshTime(); // Get the latest refresh time on page load
     updateImageSize();
@@ -30,13 +66,16 @@ export default function Home() {
           console.log("Last refresh was more than 1 hour ago. Refreshing...");
           handleRefreshClick();
         }
+        else{
+          console.log("No refresh");
+        }
       }
     };
 
     // Run check on page load and every 1 minute
     const interval = setInterval(checkRefresh, 60 * 1000);
-    return () => clearInterval(interval); // Cleanup on unmount
-  }, [refreshTime]); // Re-run when refreshTime updates
+    return () => clearInterval(interval); 
+  }, [refreshTime]); 
 
 
 
@@ -251,7 +290,7 @@ export default function Home() {
         <div style={{ position: "relative", display: "inline-block" }}>
           <img
             ref={imgRef}
-            src={`https://dear-jolly-sunbeam.ngrok-free.app/balloon-map?hour=${selectedHour}`}
+            src={mapImageUrl}
           alt="Weather Balloon Map"
           onLoad={handleImageLoad}
           onClick={handleImageClick}
