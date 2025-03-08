@@ -29,7 +29,7 @@ function NavigatorContent() {
 
 
     useEffect(() => {
-        const url = `http://localhost:8000/get-directions-map?balloon_id=${balloonId}&hour=0&x=${targetPosition.lat}&y=${targetPosition.long}`
+        let url = `http://localhost:8000/get-directions-map?balloon_id=${balloonId}&hour=0&x=${targetPosition.lat}&y=${targetPosition.long}`
         if (!hasDirections) {
             url = `http://localhost:8000/single-balloon-map-navigator?balloon_id=${balloonId}&hour=0&x=${targetPosition.lat}&y=${targetPosition.long}`
         }
@@ -46,7 +46,7 @@ function NavigatorContent() {
                 setMapImageUrl(imageObjectUrl);
             })
             .catch((error) => console.error("Error fetching image:", error));
-    }, [targetPosition?.lat, targetPosition?.long]); // Re-fetch image when `selectedHour` changes
+    }, [targetPosition?.lat, targetPosition?.long, balloonPosition]); // Re-fetch image when `selectedHour` changes
 
 
     useEffect(() => {
