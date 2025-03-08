@@ -43,7 +43,7 @@ export default function Home() {
   const handleRefreshClick = () => {
     setIsRefreshing(true);
 
-    fetch("http://localhost:8000/refresh-data")
+    fetch("https://windbourne-gfgd.onrender.com/refresh-data")
       .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to refresh data");
@@ -64,7 +64,7 @@ export default function Home() {
 
   // Function to fetch the latest refresh time
   const fetchRefreshTime = () => {
-    fetch("http://localhost:8000/get-refresh-time")
+    fetch("https://windbourne-gfgd.onrender.com/get-refresh-time")
       .then((response) => response.json())
       .then((data) => {
         // Convert UTC to local time
@@ -89,7 +89,7 @@ export default function Home() {
 
 
   useEffect(() => {
-    fetch(`http://localhost:8000/get-positions?hour=${selectedHour}`)
+    fetch(`https://windbourne-gfgd.onrender.com/get-positions?hour=${selectedHour}`)
       .then((res) => res.json())
       .then((data) => setBalloonPositions(data))
       .catch((error) => console.error("Error fetching positions:", error));
@@ -234,7 +234,7 @@ export default function Home() {
         <div style={{ position: "relative", display: "inline-block" }}>
           <img
             ref={imgRef}
-            src={`http://localhost:8000/balloon-map?hour=${selectedHour}`}
+            src={`https://windbourne-gfgd.onrender.com/balloon-map?hour=${selectedHour}`}
             alt="Weather Balloon Map"
             onLoad={handleImageLoad}
             onClick={handleImageClick}
@@ -288,7 +288,7 @@ export default function Home() {
               <p><strong>Bearing:</strong> {selectedBalloon.bearing.toFixed(2) ?? "N/A"}°</p>
               <div style={{ marginTop: "1rem", textAlign: "center" }}>
                 <img
-                  src={`http://localhost:8000/wind-column?balloon_id=${selectedBalloon.id}&hour=${selectedHour}`}
+                  src={`https://windbourne-gfgd.onrender.com/wind-column?balloon_id=${selectedBalloon.id}&hour=${selectedHour}`}
                   alt={`Wind Column for balloon #${selectedBalloon.id}`}
                   style={{
                     maxWidth: "100%",

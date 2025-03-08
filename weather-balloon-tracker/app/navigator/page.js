@@ -27,7 +27,7 @@ function NavigatorContent() {
     const imgRef = useRef(null);
 
     useEffect(() => {
-        fetch(`http://localhost:8000/balloon-details?balloon_id=${balloonId}&hour=0`)
+        fetch(`https://windbourne-gfgd.onrender.com/balloon-details?balloon_id=${balloonId}&hour=0`)
             .then((res) => res.json())
             .then((data) => {
                 setBalloonPosition(data);
@@ -73,7 +73,7 @@ function NavigatorContent() {
         console.log(targetPosition);
         console.log(maxIters);
 
-        fetch(`http://localhost:8000/start-navigation?lat=${balloonPosition.lat}&long=${balloonPosition.long}&alt=${balloonPosition.alt}&t_lat=${targetPosition.lat}&t_long=${targetPosition.long}&t_alt=${targetPosition.alt}&max_iters=${maxIters}`)
+        fetch(`https://windbourne-gfgd.onrender.com/start-navigation?lat=${balloonPosition.lat}&long=${balloonPosition.long}&alt=${balloonPosition.alt}&t_lat=${targetPosition.lat}&t_long=${targetPosition.long}&t_alt=${targetPosition.alt}&max_iters=${maxIters}`)
             .then((response) => {
                 if (!response.ok) {
                     throw new Error("Failed to get path");
