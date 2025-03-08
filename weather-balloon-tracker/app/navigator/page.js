@@ -33,7 +33,6 @@ function NavigatorContent() {
         if (!hasDirections) {
             url = `https://dear-jolly-sunbeam.ngrok-free.app/single-balloon-map-navigator?balloon_id=${balloonId}&hour=0&x=${targetPosition.lat}&y=${targetPosition.long}`
         }
-        console.log(url);
         fetch(url, {
             method: 'GET',
             headers: {
@@ -47,7 +46,7 @@ function NavigatorContent() {
                 setMapImageUrl(imageObjectUrl);
             })
             .catch((error) => console.error("Error fetching image:", error));
-    }, [targetPosition?.lat, targetPosition?.long, balloonPosition]); // Re-fetch image when `selectedHour` changes
+    }, [targetPosition?.lat, targetPosition?.long, balloonPosition, hasDirections]); // Re-fetch image when `selectedHour` changes
 
 
     useEffect(() => {
@@ -98,9 +97,7 @@ function NavigatorContent() {
 
     const handleNavigationClick = () => {
         setIsNavigating(true);
-        console.log(balloonPosition);
-        console.log(targetPosition);
-        console.log(maxIters);
+
 
         fetch(`https://dear-jolly-sunbeam.ngrok-free.app/start-navigation?lat=${balloonPosition.lat}&long=${balloonPosition.long}&alt=${balloonPosition.alt}&t_lat=${targetPosition.lat}&t_long=${targetPosition.long}&t_alt=${targetPosition.alt}&max_iters=${maxIters}`, {
             method: 'GET',
@@ -116,7 +113,7 @@ function NavigatorContent() {
             })
             .then((data) => {
                 setDirections(data);
-                console.log("Got path!", data);
+                setHasDirections(true);
             })
             .catch((err) => {
                 console.error("Error refreshing data:", err);

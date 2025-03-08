@@ -93,7 +93,6 @@ export default function Home() {
           console.log(response);
           throw new Error("Failed to refresh data");
         }
-        console.log(response);
         return response.json();
       })
       .then((data) => {
