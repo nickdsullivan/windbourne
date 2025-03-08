@@ -2,10 +2,10 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 export default function Home() {
+
   const [refreshTime, setRefreshTime] = useState(null);
   const [selectedHour, setSelectedHour] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
-
   const [windColumn, getWindColumn] = useState(false);
   // Store the balloon positions, each assumed to have { id, x, y } in ORIGINAL coords
   const [balloonPositions, setBalloonPositions] = useState([]);
