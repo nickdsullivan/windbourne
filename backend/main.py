@@ -50,7 +50,7 @@ def get_balloon_map(hour=0):
 
 @app.get("/wind-column")
 def get_balloon_map(balloon_id, hour=0):
-    print(f"wind-column balloon_id:{balloon_id}, hour:{hour}")
+    
     hour = int(hour)
     balloon_id = int(balloon_id)
     lat, long, elevation = dc.get_balloon_location(balloon_id, hour)
@@ -63,9 +63,10 @@ def get_balloon_map(balloon_id, hour=0):
         visualizer.visualize_wind(elevations, wind_speeds, directions, balloon_elevation=elevation, filename=filename, balloon_number=balloon_id, hour=hour)
     if os.path.exists(filename):
         response = FileResponse(filename, media_type="image/gif")
-        response.headers["Access-Control-Allow-Origin"] = "*" 
+        response.headers["Access-Control-Allow-Origin"] = "cross-origin" 
         response.headers["Access-Control-Allow-Methods"] = "GET"
         response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+        print(f"wind-column balloon_id:{balloon_id}, hour:{hour}")
         return response
     else:
         return {"error": "Image not found"}
