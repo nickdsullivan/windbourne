@@ -412,7 +412,7 @@ class DataCollector:
         ending_df = self.balloon_data[self.balloon_data["Hour"] == ending_hour]
         df = self.balloon_data[self.balloon_data["Hour"] == hour]
         idx = self.balloon_data[self.balloon_data["Hour"] == hour].index
-        difference = ending_hour - starting_hour
+        difference = starting_hour - ending_hour
         if len(df) == 0:
             raise IndexError ("Hour too far")
 
@@ -421,7 +421,6 @@ class DataCollector:
         ending_location   = (ending_df["Latitude"].to_numpy(), ending_df["Longitude"].to_numpy())
         # reverse the speed and bearing
         distances, bearing = earth_distance(starting_location,ending_location)
-        print(difference)
         distances = distances / difference
         lat, long = move_distance_to_lat_long(df["Latitude"].to_numpy(), df["Longitude"].to_numpy(), distances, bearing)
 
@@ -456,7 +455,7 @@ class DataCollector:
             if self.hour_unavailable(hour):
                 print("Found", hour)
                 # find the largest filled in hour
-                for starting_hour in range(start_hour, end_hour):
+                for starting_hour in range(hour, end_hour):
                     if self.hour_unavailable(starting_hour):
                         continue
                     else:
