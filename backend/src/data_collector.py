@@ -383,7 +383,7 @@ class DataCollector:
 
         self.balloon_data.loc[idx, "Latitude"]  = lat
         self.balloon_data.loc[idx, "Longitude"] = long
-        self.balloon_data.loc[idx, "Elevation"] = df["Elevation"]
+        self.balloon_data.loc[idx, "Elevation"] = df["Elevation"].values
         self.balloon_data.loc[idx, "Speed"]     = speed
         self.balloon_data.loc[idx, "Bearing"]   = bearing
         print(self.balloon_data[self.balloon_data["Hour"]==hour])
@@ -391,7 +391,7 @@ class DataCollector:
 
     def exterpolate_right(self, hour):
         df = self.balloon_data[self.balloon_data["Hour"] == hour - 1]
-        idx = self.balloon_data[self.balloon_data["Hour"] == hour].index
+        
         if len(df) == 0:
             raise IndexError ("Hour too far")
 
@@ -399,10 +399,11 @@ class DataCollector:
         speed = df["Speed"].to_numpy()
         bearing = df["Bearing"].to_numpy()
         lat, long = move_distance_to_lat_long(df["Latitude"].to_numpy(), df["Longitude"].to_numpy(), speed, bearing)
-
+        print(lat)
+        idx = self.balloon_data[self.balloon_data["Hour"] == hour].index
         self.balloon_data.loc[idx, "Latitude"]  = lat
         self.balloon_data.loc[idx, "Longitude"] = long
-        self.balloon_data.loc[idx, "Elevation"] = df["Elevation"]
+        self.balloon_data.loc[idx, "Elevation"] = df["Elevation"].values
         self.balloon_data.loc[idx, "Speed"]     = speed
         self.balloon_data.loc[idx, "Bearing"]   = bearing
         print(self.balloon_data[self.balloon_data["Hour"]==hour])
@@ -424,11 +425,11 @@ class DataCollector:
         # reverse the speed and bearing
         distances, bearing = earth_distance(starting_location,ending_location)
         distances = distances / difference
-        lat, long = move_distance_to_lat_long(df["Latitude"].to_numpy(), df["Longitude"].to_numpy(), distances, bearing)
+        lat, long = move_distance_to_lat_long(starting_df["Latitude"].to_numpy(), starting_df["Longitude"].to_numpy(), distances, bearing)
 
         self.balloon_data.loc[idx, "Latitude"]  = lat
         self.balloon_data.loc[idx, "Longitude"] = long
-        self.balloon_data.loc[idx, "Elevation"] = df["Elevation"]
+        self.balloon_data.loc[idx, "Elevation"] = df["Elevation"].values
         self.balloon_data.loc[idx, "Speed"]     = distances
         self.balloon_data.loc[idx, "Bearing"]   = bearing
         print(self.balloon_data[self.balloon_data["Hour"]==hour])
