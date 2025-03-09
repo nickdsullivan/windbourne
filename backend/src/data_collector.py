@@ -194,7 +194,7 @@ class DataCollector:
             
         results = self.get_meteo_data_bulk(unfound_lats, unfound_longs, times, pressures, start_date = start_time, end_date = end_time)
         
-        for loc_index in len(results):
+        for loc_index in range(len(results)):
             lat, long = locations[loc_index]
             speeds, bearings = results[i]
             if speeds is None or bearings is None:
