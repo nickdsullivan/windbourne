@@ -386,6 +386,7 @@ class DataCollector:
         self.balloon_data.loc[idx, "Elevation"] = df["Elevation"]
         self.balloon_data.loc[idx, "Speed"]     = speed
         self.balloon_data.loc[idx, "Bearing"]   = bearing
+        print(self.balloon_data[self.balloon_data["Hour"]==hour])
 
 
     def exterpolate_right(self, hour):
@@ -404,6 +405,7 @@ class DataCollector:
         self.balloon_data.loc[idx, "Elevation"] = df["Elevation"]
         self.balloon_data.loc[idx, "Speed"]     = speed
         self.balloon_data.loc[idx, "Bearing"]   = bearing
+        print(self.balloon_data[self.balloon_data["Hour"]==hour])
         
     
         
@@ -429,6 +431,7 @@ class DataCollector:
         self.balloon_data.loc[idx, "Elevation"] = df["Elevation"]
         self.balloon_data.loc[idx, "Speed"]     = distances
         self.balloon_data.loc[idx, "Bearing"]   = bearing
+        print(self.balloon_data[self.balloon_data["Hour"]==hour])
         
 
     def fill_missing_hours(self, start_hour = 0, end_hour = 23):
