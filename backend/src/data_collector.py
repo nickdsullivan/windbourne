@@ -379,8 +379,8 @@ class DataCollector:
             raise IndexError ("Hour too far")
 
         # reverse the speed and bearing
-        speed = df["Speed"].to_numpy() * -1
-        bearing = (df["Bearing"].to_numpy() + 180) % 360 
+        speed = df["Speed"].to_numpy()
+        bearing = df["Bearing"].to_numpy()
         lat, long = move_distance_to_lat_long(df["Latitude"].to_numpy(), df["Longitude"].to_numpy(), speed, bearing)
 
         self.balloon_data.loc[idx, "Latitude"]  = lat
@@ -397,8 +397,8 @@ class DataCollector:
             raise IndexError ("Hour too far")
 
         # reverse the speed and bearing
-        speed = df["Speed"].to_numpy()
-        bearing = (df["Bearing"].to_numpy())
+        speed = df["Speed"].to_numpy() * -1 
+        bearing = (df["Bearing"].to_numpy() + 180) % 360
         lat, long = move_distance_to_lat_long(df["Latitude"].to_numpy(), df["Longitude"].to_numpy(), speed, bearing)
 
         self.balloon_data.loc[idx, "Latitude"]  = lat
@@ -436,12 +436,13 @@ class DataCollector:
 
         # Left exterpolation
         for hour in range(start_hour, end_hour, 1):
-            print(hour)
+            
             if self.hour_unavailable(hour):
                 self.exterpolate_left(hour)
             else:
                 break
         for hour in range(end_hour, start_hour, -1):
+            
             if self.hour_unavailable(hour):
                 self.exterpolate_right(hour)
             else:
