@@ -379,6 +379,7 @@ class DataCollector:
         # reverse the speed and bearing
         speed = (df["Speed"].to_numpy() * -1)
         bearing = (df["Bearing"].to_numpy() + 180) % 360
+        print(df["Latitude"].to_numpy(), df["Longitude"].to_numpy(), speed, bearing)
         lat, long = move_distance_to_lat_long(df["Latitude"].to_numpy(), df["Longitude"].to_numpy(), speed, bearing)
 
         self.balloon_data.loc[idx, "Latitude"]  = lat
@@ -398,8 +399,9 @@ class DataCollector:
         # reverse the speed and bearing
         speed = df["Speed"].to_numpy()
         bearing = df["Bearing"].to_numpy()
+        print(df["Latitude"].to_numpy(), df["Longitude"].to_numpy(), speed, bearing)
         lat, long = move_distance_to_lat_long(df["Latitude"].to_numpy(), df["Longitude"].to_numpy(), speed, bearing)
-        print(lat)
+        
         idx = self.balloon_data[self.balloon_data["Hour"] == hour].index
         self.balloon_data.loc[idx, "Latitude"]  = lat
         self.balloon_data.loc[idx, "Longitude"] = long
@@ -423,13 +425,13 @@ class DataCollector:
         starting_location = (starting_df["Latitude"].to_numpy(), starting_df["Longitude"].to_numpy())
         ending_location   = (ending_df["Latitude"].to_numpy(), ending_df["Longitude"].to_numpy())
         # reverse the speed and bearing
-        distances, bearing = earth_distance(starting_location,ending_location)
+        distances, bearing = earth_distance(starting_location, ending_location)
         distances = distances / difference
         lat, long = move_distance_to_lat_long(starting_df["Latitude"].to_numpy(), starting_df["Longitude"].to_numpy(), distances, bearing)
-
+        elevations = starting_df["Elevation"] + (ending_df["Elevation"]-starting_df["Elevation"]) / difference
         self.balloon_data.loc[idx, "Latitude"]  = lat
         self.balloon_data.loc[idx, "Longitude"] = long
-        self.balloon_data.loc[idx, "Elevation"] = df["Elevation"].values
+        self.balloon_data.loc[idx, "Elevation"] = elevations
         self.balloon_data.loc[idx, "Speed"]     = distances
         self.balloon_data.loc[idx, "Bearing"]   = bearing
         print(self.balloon_data[self.balloon_data["Hour"]==hour])
@@ -457,7 +459,7 @@ class DataCollector:
         for hour in range(start_hour, end_hour):
             print(hour)
             if self.hour_unavailable(hour):
-                print("Found", hour)
+                print("Found interp", hour)
                 # find the largest filled in hour
                 for starting_hour in range(hour, end_hour):
                     if self.hour_unavailable(starting_hour):
