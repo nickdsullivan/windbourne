@@ -191,6 +191,11 @@ class DataCollector:
                 df = pd.concat([df, new_data])
         if len(unfound_lats) != 0:
             results = self.get_meteo_data_bulk(unfound_lats, unfound_longs, query_time, pressures, start_date=start_time, end_date=end_time)
+            if results is None:
+                time.sleep(60)
+                results = self.get_meteo_data_bulk(unfound_lats, unfound_longs, query_time, pressures, start_date=start_time, end_date=end_time)
+                if results is None:
+                    return None
             for loc_index in range(len(results)):
                 lat, long = locations[loc_index]
                 speeds, bearings = results[loc_index]
@@ -265,7 +270,7 @@ class DataCollector:
 
 
     def get_meteo_data_bulk(self, latitude: list, longitude: list, query_time, pressures = [250], start_date = None, end_date = None):
-
+        print(len(latitude))
         url = "https://api.open-meteo.com/v1/forecast"
         data_cats = []
         for pressure in pressures:
