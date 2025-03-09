@@ -167,9 +167,9 @@ class Navigator:
         for node in nodes:
             locations.append((node.lat, node.long))
             
-        current_time = self.dc.hour2time(nodes[0].hour)
+        query_time = self.dc.hour2time(nodes[0].hour)
         locations.append((0.0000,0.0000))
-        df = self.dc.get_and_save_wind_multi_loc(locations=locations, current_time=current_time)
+        df = self.dc.get_and_save_wind_multi_loc(locations=locations, query_time=query_time)
         if len(df) == 0:
             return None, None, None
         results = {}
