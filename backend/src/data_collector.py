@@ -193,23 +193,24 @@ class DataCollector:
                 df = pd.concat([df, new_data])
             
         results = self.get_meteo_data_bulk(unfound_lats, unfound_longs, times, pressures, start_date = start_time, end_date = end_time)
-        print(results)
-        return
-        if speeds is None or bearings is None:
-            return df
-        for i in range(len(speeds)):
-            new_row = {
-                "Datetime": time,
-                "Latitude": round(lat,3),
-                "Longitude": round(long,3),
-                "Elevation": round(self.elevations[i],3),
-                "Pressure": pressures[i],
-                "Speed": speeds[i],
-                "Bearing": bearings[i]
-            }
-            
-            self.winddata.loc[len(self.winddata)] = new_row
-            df.loc[len(df)] = new_row
+        
+        for loc_index in len(results):
+            lat, long = locations[loc_index]
+            speeds, bearings = results[i]
+            if speeds is None or bearings is None:
+                return df
+            for i in range(len(speeds)):
+                new_row = {
+                    "Datetime": time,
+                    "Latitude": round(lat,3),
+                    "Longitude": round(long,3),
+                    "Elevation": round(self.elevations[i],3),
+                    "Pressure": pressures[i],
+                    "Speed": speeds[i],
+                    "Bearing": bearings[i]
+                }
+                self.winddata.loc[len(self.winddata)] = new_row
+                df.loc[len(df)] = new_row
         self.winddata = self.winddata.drop_duplicates()   
         self.winddata.to_csv(self.wind_data_filename, index=False)
         return df
@@ -286,10 +287,7 @@ class DataCollector:
             response = requests.get(url, params=params)
             response.raise_for_status()  # Raise HTTPError for bad responses (4xx or 5xx)
             data = response.json()
-            
-            
             results = []
-
             for location in data:
                 speeds = []
                 directions = []

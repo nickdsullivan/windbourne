@@ -62,25 +62,20 @@ class Navigator:
             closest_node = self.get_closest_node(self.current_list)
             print(f"{index/max_iters:.2f} {closest_node}")
             children = self.explore_nodes(self.current_list)
-            return
-
-            for j in range(len(self.current_list)):
-                node = self.current_list[j]
-                children = self.explore_node(node)
-                signatures = set()
-                for child in children:
-                    if child.signature in signatures:
-                        continue
-                    signatures.add(child.signature)
-                    if child.distance < self.tolerance:
-                        return child
-                    if len(new_list) < self.beam_width:
-                        new_list.append(child)
-                        continue
-                    max_node = self.get_furthest_node(new_list)
-                    if child.distance < max_node.distance:
-                        new_list.remove(max_node)
-                        new_list.append(child)
+            signatures = set()
+            for child in children:
+                if child.signature in signatures:
+                    continue
+                signatures.add(child.signature)
+                if child.distance < self.tolerance:
+                    return child
+                if len(new_list) < self.beam_width:
+                    new_list.append(child)
+                    continue
+                max_node = self.get_furthest_node(new_list)
+                if child.distance < max_node.distance:
+                    new_list.remove(max_node)
+                    new_list.append(child)
             
             if len(new_list) == 0:
                 print("Warning: No valid nodes to explore.")
@@ -122,11 +117,6 @@ class Navigator:
         return nodes
 
 
-   
-
-
-
-
     def get_wind_state(self, node):
         time = self.dc.hour2time(node.hour)
         df = self.dc.get_and_save_wind(lat = node.lat, long = node.long, time = time)
@@ -137,9 +127,6 @@ class Navigator:
         alts = df["Elevation"].tolist()
         return speeds, bearings, alts
         
-
-
-
     def explore_node(self, node):
         speeds, bearings, alts = self.get_wind_state(node)
         if speeds is None:
@@ -157,20 +144,21 @@ class Navigator:
     
 
     def explore_nodes(self, nodes):
-        speeds, bearings, alts = self.get_wind_state_multi_loc(nodes)
-        return
-        if speeds is None:
-            return []
-        length = len(speeds)
-        children = []
-        for i in range(length):
-            location = move_distance_to_lat_long(node.lat, node.long, speeds[i], bearings[i])
-            distance = earth_distance(location, self.target_location)[0]
-            lat, long = location[0], location[1]
-            child = self.add_node(lat, long, alts[i], hour = node.hour+1, parent = node, distance = distance)
-            node.add_child(child)
-            children.append(child)
-        return children
+        results = self.get_wind_state_multi_loc(nodes)
+        for node in nodes:
+            speeds, bearings, alts = results[node.id]
+            if speeds is None:
+                return []
+            length = len(speeds)
+            children = []
+            for i in range(length):
+                location = move_distance_to_lat_long(node.lat, node.long, speeds[i], bearings[i])
+                distance = earth_distance(location, self.target_location)[0]
+                lat, long = location[0], location[1]
+                child = self.add_node(lat, long, alts[i], hour = node.hour+1, parent = node, distance = distance)
+                node.add_child(child)
+                children.append(child)
+            return children
     
 
     def get_wind_state_multi_loc(self, nodes):
@@ -193,10 +181,13 @@ class Navigator:
         df = self.dc.get_and_save_wind_multi_loc(locations=locations, times=times, start_time = start_time, end_time=end_time)
         if len(df) == 0:
             return None, None, None
-        speeds = df["Speed"].tolist()
-        bearings = df["Bearing"].tolist()
-        alts = df["Elevation"].tolist()
-        return speeds, bearings, alts
+        results = {}
+        for node in nodes:
+            speeds = df["Speed"].tolist()
+            bearings = df["Bearing"].tolist()
+            alts = df["Elevation"].tolist()
+            results[node.id] = (speeds, bearings, alts)
+        return results
     
     
         
@@ -219,6 +210,17 @@ class Navigator:
                 best_node = node
                 distance = node.distance
         return best_node
+    
+
+
+
+"""
+            return
+
+            for j in range(len(self.current_list)):
+                node = self.current_list[j]
+                children = self.explore_node(node)
+"""
 
 
 
