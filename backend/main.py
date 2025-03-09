@@ -48,6 +48,7 @@ def get_balloon_map(hour=0):
 
 @app.get("/wind-column")
 def get_balloon_map(balloon_id, hour=0):
+    
     hour = int(hour)
     balloon_id = int(balloon_id)
     lat, long, elevation = dc.get_balloon_location(balloon_id, hour)
@@ -56,8 +57,11 @@ def get_balloon_map(balloon_id, hour=0):
     wind_speeds = windcolumn["Speed"]
     directions = windcolumn["Bearing"]
     filename = f"wind_column/windcolumn{balloon_id}_{hour}.gif"
-    if not was_file_created_last_hour(filename):
-        visualizer.visualize_wind(elevations, wind_speeds, directions, balloon_elevation=elevation, filename=filename, balloon_number=balloon_id, hour=hour)
+    try:
+        if not was_file_created_last_hour(filename):
+            visualizer.visualize_wind(elevations, wind_speeds, directions, balloon_elevation=elevation, filename=filename, balloon_number=balloon_id, hour=hour)
+    except ValueError as e:
+        print("Failed to get wind column")
     if os.path.exists(filename):
         response = FileResponse(filename, media_type="image/gif")
         response.headers["Access-Control-Allow-Origin"] = "cross-origin" 
@@ -74,6 +78,7 @@ def get_balloon_map(balloon_id, hour=0):
 
 @app.get("/get-positions")
 def get_positions(hour=0):
+    print(f"get-positions hour:{hour}")
     hour = int(hour)
     return JSONResponse(content= visualizer.get_positions(df,hour))
 

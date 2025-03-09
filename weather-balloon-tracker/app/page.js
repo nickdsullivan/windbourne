@@ -79,7 +79,6 @@ export default function Home() {
     updateImageSize();
     fetchRefreshTime(); 
     
-    
 
     // Run check on page load and every 1 minute
     const interval = setInterval(checkRefresh, 60 * 1000);
