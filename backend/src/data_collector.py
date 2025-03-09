@@ -436,13 +436,13 @@ class DataCollector:
 
         # Left exterpolation
         for hour in range(start_hour, end_hour, 1):
-            
+            print("Found left: ", hour)
             if self.hour_unavailable(hour):
                 self.exterpolate_left(hour)
             else:
                 break
         for hour in range(end_hour, start_hour, -1):
-            
+            print("Found right: ", hour)
             if self.hour_unavailable(hour):
                 self.exterpolate_right(hour)
             else:
