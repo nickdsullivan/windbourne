@@ -117,6 +117,7 @@ class Navigator:
         return nodes
 
     def explore_nodes(self, nodes):
+        print(f"Node Length: {len(nodes)}")
         if len(nodes) == 1:
             return self.explore_node(nodes[0])
         results = self.get_wind_state_multi_loc(nodes)

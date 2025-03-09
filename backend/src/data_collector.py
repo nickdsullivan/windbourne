@@ -270,7 +270,7 @@ class DataCollector:
 
 
     def get_meteo_data_bulk(self, latitude: list, longitude: list, query_time, pressures = [250], start_date = None, end_date = None):
-        print(len(latitude))
+        print(f"# locs: {len(latitude)}")
         url = "https://api.open-meteo.com/v1/forecast"
         data_cats = []
         for pressure in pressures:
