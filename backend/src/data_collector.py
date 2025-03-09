@@ -192,7 +192,8 @@ class DataCollector:
                 unfound_longs.append(long)
                 df = pd.concat([df, new_data])
             
-        speeds, bearings = self.get_meteo_data_bulk(unfound_lats, unfound_longs, time, pressures, start_date = start_time, end_date = end_time)
+        results = self.get_meteo_data_bulk(unfound_lats, unfound_longs, time, pressures, start_date = start_time, end_date = end_time)
+        print(results)
         return
         if speeds is None or bearings is None:
             return df
@@ -285,16 +286,20 @@ class DataCollector:
             response = requests.get(url, params=params)
             response.raise_for_status()  # Raise HTTPError for bad responses (4xx or 5xx)
             data = response.json()
-            print(data)
-            return None, None
-            times = list(map(convert_time_string_meteo, data["hourly"]["time"]))
-            speeds = []
-            directions = []
-            for current_time in times_to_find:
-                for pressure in pressures:
-                    speeds.append(data["hourly"][f"wind_speed_{pressure}hPa"][times.index(current_time)])
-                    directions.append(data["hourly"][f"wind_direction_{pressure}hPa"][times.index(current_time)])
-            return speeds, directions
+            
+            
+            results = []
+
+            for location in data:
+                speeds = []
+                directions = []
+                for current_time in times_to_find:
+                    times = list(map(convert_time_string_meteo, location["hourly"]["time"]))
+                    for pressure in pressures:
+                        speeds.append(data["hourly"][f"wind_speed_{pressure}hPa"][times.index(current_time)])
+                        directions.append(data["hourly"][f"wind_direction_{pressure}hPa"][times.index(current_time)])
+                results.append((speeds,directions))
+            return results
 
         except requests.exceptions.RequestException as e:
             print(f"An error occurred: {print(params)}")
