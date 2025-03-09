@@ -370,7 +370,7 @@ class DataCollector:
         return {"lat" : df["Latitude"].iloc[0], "long" : df["Longitude"].iloc[0], "alt":  df["Elevation"].iloc[0], "speed": df["Speed"].iloc[0], "bearing": df["Bearing"].iloc[0]}
 
     def hour_unavailable(self,hour):
-        return self.balloon_data[self.balloon_data["Hour"] == hour].isna().all()
+        return self.balloon_data[self.balloon_data["Hour"] == hour].isna().all().all()
 
     def exterpolate_left(self, hour):
         df = self.balloon_data[self.balloon_data["Hour"] == hour + 1]
