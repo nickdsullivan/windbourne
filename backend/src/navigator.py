@@ -61,6 +61,9 @@ class Navigator:
             
             closest_node = self.get_closest_node(self.current_list)
             print(f"{index/max_iters:.2f} {closest_node}")
+            children = self.explore_nodes(self.current_list)
+            return
+
             for j in range(len(self.current_list)):
                 node = self.current_list[j]
                 children = self.explore_node(node)
@@ -119,7 +122,7 @@ class Navigator:
         return nodes
 
 
-        
+   
 
 
 
@@ -151,6 +154,48 @@ class Navigator:
             node.add_child(child)
             children.append(child)
         return children
+    
+
+    def explore_nodes(self, nodes):
+        speeds, bearings, alts = self.get_wind_state_multi_loc(nodes)
+        return
+        if speeds is None:
+            return []
+        length = len(speeds)
+        children = []
+        for i in range(length):
+            location = move_distance_to_lat_long(node.lat, node.long, speeds[i], bearings[i])
+            distance = earth_distance(location, self.target_location)[0]
+            lat, long = location[0], location[1]
+            child = self.add_node(lat, long, alts[i], hour = node.hour+1, parent = node, distance = distance)
+            node.add_child(child)
+            children.append(child)
+        return children
+    
+
+    def get_wind_state_multi_loc(self, nodes):
+        locations = []
+        max_hour = float("-inf")
+        min_hour = float("inf")
+        
+        # The times should be the same
+        for node in nodes:
+            #set max and min times from node.time
+            if node.hour > max_hour:
+                max_hour = node.hour
+            if node.hour < min_hour:
+                min_hour = node.hour
+            locations.append((node.lat, node.long))
+        start_time = self.dc.hour2time(min_hour)
+        end_time = self.dc.hour2time(max_hour)
+        df = self.dc.get_and_save_wind_multi_loc(locations=locations, start_time = start_time, end_time=end_time)
+        if len(df) == 0:
+            return None, None, None
+        speeds = df["Speed"].tolist()
+        bearings = df["Bearing"].tolist()
+        alts = df["Elevation"].tolist()
+        return speeds, bearings, alts
+    
     
         
 

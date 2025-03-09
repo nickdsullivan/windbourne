@@ -168,6 +168,46 @@ class DataCollector:
         self.winddata.to_csv(self.wind_data_filename, index=False)
         return df
 
+    # Multi location wind
+    def get_and_save_wind_multi_loc(self, locations, start_time, end_time) -> pd.DataFrame:
+        if start_time == end_time:
+            end_time = end_time + timedelta(hours=2) 
+        pressures = []
+        for elevation in self.elevations:
+            pressures.append(elevation_to_pressure(elevation))
+        unfound_lats = []
+        unfound_longs = []
+        df = self.winddata.iloc[0:0]
+        for location in locations:
+            lat, long = location[0], location[1]
+            new_data = self.get_wind_data_from_csv(lat, long, time)
+            if len(new_data) == 0:
+                unfound_lats.append(lat)
+                unfound_longs.append(long)
+            else:
+                df = pd.concat([df, new_data])
+        speeds, bearings = self.get_meteo_data_bulk(lat, long, time, pressures, start_date = start_time, end_date = end_time)
+        return
+        if speeds is None or bearings is None:
+            return df
+        for i in range(len(speeds)):
+            new_row = {
+                "Datetime": time,
+                "Latitude": round(lat,3),
+                "Longitude": round(long,3),
+                "Elevation": round(self.elevations[i],3),
+                "Pressure": pressures[i],
+                "Speed": speeds[i],
+                "Bearing": bearings[i]
+            }
+            
+            self.winddata.loc[len(self.winddata)] = new_row
+            df.loc[len(df)] = new_row
+        self.winddata = self.winddata.drop_duplicates()   
+        self.winddata.to_csv(self.wind_data_filename, index=False)
+        return df
+
+
 
     def get_wind_data_from_csv(self, lat, long, time):
         df = self.winddata[self.winddata["Datetime"].astype(str) == str(time)]
@@ -176,6 +216,7 @@ class DataCollector:
         return df
     
     def get_meteo_data(self, latitude, longitude, current_time, pressures = [250], start_date = None, end_date = None):
+
         url = "https://api.open-meteo.com/v1/forecast"
         data_cats = []
         for pressure in pressures:
@@ -214,6 +255,49 @@ class DataCollector:
             print(f"Invalid JSON response: {e}, response text: {response.text}")
             return None, None
         
+
+
+    def get_meteo_data_bulk(self, latitude: list, longitude: list, times_to_find: list, pressures = [250], start_date = None, end_date = None):
+
+        url = "https://api.open-meteo.com/v1/forecast"
+        data_cats = []
+        for pressure in pressures:
+            data_cats.append(f"wind_speed_{pressure}hPa")
+            data_cats.append(f"wind_direction_{pressure}hPa")
+        params = {
+            "latitude": float(latitude),
+            "longitude": float(longitude),
+            "hourly": data_cats,
+        }
+        if not start_date is None and not end_date is None:
+            params["start_date"] = start_date
+            params["end_date"]   = end_date
+        else:
+            params["current"]    = data_cats,
+        
+        try:
+            response = requests.get(url, params=params)
+            response.raise_for_status()  # Raise HTTPError for bad responses (4xx or 5xx)
+            data = response.json()
+            print(data)
+            return None, None
+            times = list(map(convert_time_string_meteo, data["hourly"]["time"]))
+            speeds = []
+            directions = []
+            for current_time in times_to_find:
+                for pressure in pressures:
+                    speeds.append(data["hourly"][f"wind_speed_{pressure}hPa"][times.index(current_time)])
+                    directions.append(data["hourly"][f"wind_direction_{pressure}hPa"][times.index(current_time)])
+            return speeds, directions
+
+        except requests.exceptions.RequestException as e:
+            print(f"An error occurred: {print(params)}")
+            print(e)
+            print(f"{url}")
+            return None, None
+        except ValueError as e: # Catch json decode errors
+            print(f"Invalid JSON response: {e}, response text: {response.text}")
+            return None, None
     def clear_wind(self):
         self.winddata   = pd.DataFrame(columns=[ 
                         "Datetime", 

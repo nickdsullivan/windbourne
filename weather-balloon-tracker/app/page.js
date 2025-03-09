@@ -129,6 +129,8 @@ export default function Home() {
         // Convert UTC to local time
         const utcDate = new Date(data.time_utc + "Z");
         const localTime = utcDate.toLocaleString();
+        console.log(localTime);
+        console.log(data.time_utc);
         setRefreshTime(localTime);
         checkRefresh();
       })
@@ -346,9 +348,9 @@ export default function Home() {
           {selectedBalloon ? (
             <>
               <h2>Balloon #{selectedBalloon.id} Details </h2>
-              <p><strong>Latitude:</strong> {selectedBalloon.lat.toFixed(4) ?? `N/A`}</p>
-              <p><strong>Longitude:</strong> {selectedBalloon.long.toFixed(4) ?? `N/A`},</p>
-              <p><strong>Altitude:</strong> {selectedBalloon.alt.toFixed(4) ?? `N/A`} km</p>
+              <p><strong>Latitude:</strong> {selectedBalloon.lat.toFixed(3) ?? `N/A`}</p>
+              <p><strong>Longitude:</strong> {selectedBalloon.long.toFixed(3) ?? `N/A`},</p>
+              <p><strong>Altitude:</strong> {selectedBalloon.alt.toFixed(3) ?? `N/A`} km</p>
               <p><strong>Speed:</strong> {selectedBalloon.speed.toFixed(2) ?? "N/A"} km/h </p>
               <p><strong>Bearing:</strong> {selectedBalloon.bearing.toFixed(2) ?? "N/A"}°</p>
               <div style={{ marginTop: "1rem", textAlign: "center" }}>
