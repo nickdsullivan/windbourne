@@ -108,7 +108,6 @@ class Navigator:
         nodes.reverse()
         return nodes
     
-
     def get_path_lat_long(self, node):
         nodes = []
         while node.id != 1:
@@ -116,33 +115,6 @@ class Navigator:
             node = node.parent
         nodes.reverse()
         return nodes
-
-
-    def get_wind_state(self, node):
-        time = self.dc.hour2time(node.hour)
-        df = self.dc.get_and_save_wind(lat = node.lat, long = node.long, time = time)
-        if len(df) == 0:
-            return None, None, None
-        speeds = df["Speed"].tolist()
-        bearings = df["Bearing"].tolist()
-        alts = df["Elevation"].tolist()
-        return speeds, bearings, alts
-        
-    def explore_node(self, node):
-        speeds, bearings, alts = self.get_wind_state(node)
-        if speeds is None:
-            return []
-        length = len(speeds)
-        children = []
-        for i in range(length):
-            location = move_distance_to_lat_long(node.lat, node.long, speeds[i], bearings[i])
-            distance = earth_distance(location, self.target_location)[0]
-            lat, long = location[0], location[1]
-            child = self.add_node(lat, long, alts[i], hour = node.hour+1, parent = node, distance = distance)
-            node.add_child(child)
-            children.append(child)
-        return children
-    
 
     def explore_nodes(self, nodes):
         if len(nodes) == 1:
@@ -181,8 +153,30 @@ class Navigator:
             results[node.id] = (speeds, bearings, alts)
         return results
     
-    
+    def get_wind_state(self, node):
+        time = self.dc.hour2time(node.hour)
+        df = self.dc.get_and_save_wind(lat = node.lat, long = node.long, time = time)
+        if len(df) == 0:
+            return None, None, None
+        speeds = df["Speed"].tolist()
+        bearings = df["Bearing"].tolist()
+        alts = df["Elevation"].tolist()
+        return speeds, bearings, alts
         
+    def explore_node(self, node):
+        speeds, bearings, alts = self.get_wind_state(node)
+        if speeds is None:
+            return []
+        length = len(speeds)
+        children = []
+        for i in range(length):
+            location = move_distance_to_lat_long(node.lat, node.long, speeds[i], bearings[i])
+            distance = earth_distance(location, self.target_location)[0]
+            lat, long = location[0], location[1]
+            child = self.add_node(lat, long, alts[i], hour = node.hour+1, parent = node, distance = distance)
+            node.add_child(child)
+            children.append(child)
+        return children
 
     def get_closest_node(self, nodes):
         distance = float("inf")

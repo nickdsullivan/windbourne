@@ -186,27 +186,25 @@ class DataCollector:
                 unfound_longs.append(long)
             else:
                 df = pd.concat([df, new_data])
-        results = self.get_meteo_data_bulk(unfound_lats, unfound_longs, query_time, pressures, start_date=start_time, end_date=end_time)
-        
-        for loc_index in range(len(results)):
-            lat, long = locations[loc_index]
-            speeds, bearings = results[loc_index]
-            print(speeds)
-            print(len(speeds))
-            if speeds is None or bearings is None:
-                return df
-            for i in range(len(speeds)):
-                new_row = {
-                    "Datetime": time,
-                    "Latitude": round(lat,3),
-                    "Longitude": round(long,3),
-                    "Elevation": round(self.elevations[i],3),
-                    "Pressure": pressures[i],
-                    "Speed": speeds[i],
-                    "Bearing": bearings[i]
-                }
-                self.winddata.loc[len(self.winddata)] = new_row
-                df.loc[len(df)] = new_row
+        if len(unfound_lats) != 0:
+            results = self.get_meteo_data_bulk(unfound_lats, unfound_longs, query_time, pressures, start_date=start_time, end_date=end_time)
+            for loc_index in range(len(results)):
+                lat, long = locations[loc_index]
+                speeds, bearings = results[loc_index]
+                if speeds is None or bearings is None:
+                    return df
+                for i in range(len(speeds)):
+                    new_row = {
+                        "Datetime": time,
+                        "Latitude": round(lat,3),
+                        "Longitude": round(long,3),
+                        "Elevation": round(self.elevations[i],3),
+                        "Pressure": pressures[i],
+                        "Speed": speeds[i],
+                        "Bearing": bearings[i]
+                    }
+                    self.winddata.loc[len(self.winddata)] = new_row
+                    df.loc[len(df)] = new_row
         self.winddata = self.winddata.drop_duplicates()   
         self.winddata.to_csv(self.wind_data_filename, index=False)
         return df
@@ -297,7 +295,6 @@ class DataCollector:
         except requests.exceptions.RequestException as e:
             print(f"An error occurred: {print(params)}")
             print(e)
-            print(f"{url}")
             return None, None
         except ValueError as e: # Catch json decode errors
             print(f"Invalid JSON response: {e}, response text: {response.text}")
