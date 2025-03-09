@@ -16,7 +16,11 @@ class DataCollector:
         self.number_of_balloons = 1000
         self.latest_collection_time = pd.to_datetime(self.balloon_data["Datetime"].max())
         self.num_calls = 0
-        self.elevations= [0.11, 0.32, 0.5, 0.8, 1.0, 1.5, 1.9, 3.0, 4.2, 5.6, 7.2, 9.2, 10.4, 11.8, 13.5, 15.8, 17.7, 19.3, 22.0]
+        self.elevations= [1.9, 3.0, 4.2, 5.6, 7.2, 9.2, 10.4, 11.8, 13.5, 15.8, 17.7, 19.3, 22.0]
+
+        #self.elevations= [0.11, 0.32, 0.5, 0.8, 1.0, 1.5, 1.9, 3.0, 4.2, 5.6, 7.2, 9.2, 10.4, 11.8, 13.5, 15.8, 17.7, 19.3, 22.0]
+
+        self.num_api_calls = 0
     def download_windborne_data(self):
         current_time = datetime.now(timezone.utc).replace(tzinfo=None)
         
@@ -114,7 +118,6 @@ class DataCollector:
         df = self.get_wind_data_from_csv(lat, long, time)
         if len(df) != 0:
             return df
-        self.num_calls += 1
         speeds, bearings = self.get_meteo_data(lat, long, time, pressures)
         if speeds is None or bearings is None:
             print("shooot")
@@ -237,6 +240,8 @@ class DataCollector:
         
         try:
             response = requests.get(url, params=params)
+            self.num_api_calls += 1
+            
             response.raise_for_status()  # Raise HTTPError for bad responses (4xx or 5xx)
             data = response.json()
             times = list(map(convert_time_string_meteo, data["hourly"]["time"]))
@@ -279,6 +284,7 @@ class DataCollector:
         
         try:
             response = requests.get(url, params=params)
+            self.num_api_calls += len(latitude)
             response.raise_for_status()  # Raise HTTPError for bad responses (4xx or 5xx)
             data = response.json()
             results = []

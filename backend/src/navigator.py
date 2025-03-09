@@ -60,7 +60,7 @@ class Navigator:
             new_list = []
             
             closest_node = self.get_closest_node(self.current_list)
-            print(f"{index/max_iters:.2f} {closest_node}")
+            print(f"{index/max_iters:.2f} {closest_node} | Calls {self.dc.num_api_calls}")
             
             children = self.explore_nodes(self.current_list)
             signatures = set()
