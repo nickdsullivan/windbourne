@@ -169,7 +169,7 @@ class DataCollector:
         return df
 
     # Multi location wind
-    def get_and_save_wind_multi_loc(self, locations, start_time, end_time) -> pd.DataFrame:
+    def get_and_save_wind_multi_loc(self, locations, times, start_time, end_time) -> pd.DataFrame:
         if start_time == end_time:
             end_time = end_time + timedelta(days=1) 
 
@@ -183,7 +183,7 @@ class DataCollector:
         df = self.winddata.iloc[0:0]
         for location in locations:
             lat, long = location[0], location[1]
-            new_data = self.get_wind_data_from_csv(lat, long, time)
+            new_data = self.get_wind_data_from_csv(lat, long, times)
             if len(new_data) == 0:
                 unfound_lats.append(lat)
                 unfound_longs.append(long)
@@ -192,7 +192,7 @@ class DataCollector:
                 unfound_longs.append(long)
                 df = pd.concat([df, new_data])
             
-        results = self.get_meteo_data_bulk(unfound_lats, unfound_longs, time, pressures, start_date = start_time, end_date = end_time)
+        results = self.get_meteo_data_bulk(unfound_lats, unfound_longs, times, pressures, start_date = start_time, end_date = end_time)
         print(results)
         return
         if speeds is None or bearings is None:

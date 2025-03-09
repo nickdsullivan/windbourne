@@ -177,7 +177,7 @@ class Navigator:
         locations = []
         max_hour = float("-inf")
         min_hour = float("inf")
-        
+        times = []
         # The times should be the same
         for node in nodes:
             #set max and min times from node.time
@@ -186,10 +186,11 @@ class Navigator:
             if node.hour < min_hour:
                 min_hour = node.hour
             locations.append((node.lat, node.long))
+            times.append(self.dc.hour2time(node.hour))
         start_time = self.dc.hour2time(min_hour)
         end_time = self.dc.hour2time(max_hour)
         locations.append((0.0000,0.0000))
-        df = self.dc.get_and_save_wind_multi_loc(locations=locations, start_time = start_time, end_time=end_time)
+        df = self.dc.get_and_save_wind_multi_loc(locations=locations, times=times, start_time = start_time, end_time=end_time)
         if len(df) == 0:
             return None, None, None
         speeds = df["Speed"].tolist()
