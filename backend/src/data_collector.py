@@ -191,7 +191,8 @@ class DataCollector:
                 unfound_lats.append(lat)
                 unfound_longs.append(long)
                 df = pd.concat([df, new_data])
-        speeds, bearings = self.get_meteo_data_bulk(lat, long, time, pressures, start_date = start_time, end_date = end_time)
+            
+        speeds, bearings = self.get_meteo_data_bulk(unfound_lats, unfound_longs, time, pressures, start_date = start_time, end_date = end_time)
         return
         if speeds is None or bearings is None:
             return df
