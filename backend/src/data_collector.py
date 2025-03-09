@@ -265,8 +265,8 @@ class DataCollector:
             data_cats.append(f"wind_speed_{pressure}hPa")
             data_cats.append(f"wind_direction_{pressure}hPa")
         params = {
-            "latitude": float(latitude),
-            "longitude": float(longitude),
+            "latitude": latitude,
+            "longitude": longitude,
             "hourly": data_cats,
         }
         if not start_date is None and not end_date is None:
