@@ -433,8 +433,10 @@ class DataCollector:
         
 
     def fill_missing_hours(self, start_hour = 0, end_hour = 23):
+
         # Left exterpolation
         for hour in range(start_hour, end_hour, 1):
+            print(hour)
             if self.hour_unavailable(hour):
                 self.exterpolate_left(hour)
             else:
@@ -444,7 +446,7 @@ class DataCollector:
                 self.exterpolate_right(hour)
             else:
                 break
-
+                
         for hour in range(start_hour, end_hour):
             if self.hour_unavailable(hour):
                 # find the largest filled in hour
