@@ -11,14 +11,19 @@ dc = DataCollector()
 df = dc.balloon_data
 visualizer = Visualizer()
 
+
+
 app = FastAPI()
+
+# Allow only the frontend domain
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Change to ["http://localhost:3000"] for security
+    allow_origins=["*"],  # Only this origin is allowed
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST"],  # Allow only necessary HTTP methods
+    allow_headers=["Content-Type", "Authorization"],  # Restrict headers for security
 )
+
 
 @app.get("/refresh-data")
 def refresh_data():

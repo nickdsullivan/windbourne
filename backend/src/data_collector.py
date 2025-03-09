@@ -369,14 +369,103 @@ class DataCollector:
         df = df[df["Balloon"] == number]
         return {"lat" : df["Latitude"].iloc[0], "long" : df["Longitude"].iloc[0], "alt":  df["Elevation"].iloc[0], "speed": df["Speed"].iloc[0], "bearing": df["Bearing"].iloc[0]}
 
+    def hour_unavailable(self,hour):
+        return self.balloon_data[self.balloon_data["Hour"] == hour].isna().all()
 
-    def fill_missing_hours(self, start_hour, end_hour):
+    def exterpolate_left(self, hour):
+        df = self.balloon_data[self.balloon_data["Hour"] == hour + 1]
+        idx = self.balloon_data[self.balloon_data["Hour"] == hour].index
+        if len(df) == 0:
+            raise IndexError ("Hour too far")
+
+        # reverse the speed and bearing
+        speed = df["Speed"].to_numpy() * -1
+        bearing = (df["Bearing"].to_numpy() + 180) % 360 
+        lat, long = move_distance_to_lat_long(df["Latitude"].to_numpy(), df["Longitude"].to_numpy(), speed, bearing)
+
+        self.balloon_data.loc[idx, "Latitude"]  = lat
+        self.balloon_data.loc[idx, "Longitude"] = long
+        self.balloon_data.loc[idx, "Elevation"] = df["Elevation"]
+        self.balloon_data.loc[idx, "Speed"]     = speed
+        self.balloon_data.loc[idx, "Bearing"]   = bearing
+
+
+    def exterpolate_right(self, hour):
+        df = self.balloon_data[self.balloon_data["Hour"] == hour - 1]
+        idx = self.balloon_data[self.balloon_data["Hour"] == hour].index
+        if len(df) == 0:
+            raise IndexError ("Hour too far")
+
+        # reverse the speed and bearing
+        speed = df["Speed"].to_numpy()
+        bearing = (df["Bearing"].to_numpy())
+        lat, long = move_distance_to_lat_long(df["Latitude"].to_numpy(), df["Longitude"].to_numpy(), speed, bearing)
+
+        self.balloon_data.loc[idx, "Latitude"]  = lat
+        self.balloon_data.loc[idx, "Longitude"] = long
+        self.balloon_data.loc[idx, "Elevation"] = df["Elevation"]
+        self.balloon_data.loc[idx, "Speed"]     = speed
+        self.balloon_data.loc[idx, "Bearing"]   = bearing
+    
+        
+    def interpolate(self, hour, starting_hour, ending_hour):
+        starting_df = self.balloon_data[self.balloon_data["Hour"] == starting_hour]
+        ending_df = self.balloon_data[self.balloon_data["Hour"] == ending_hour]
+        df = self.balloon_data[self.balloon_data["Hour"] == hour]
+        idx = self.balloon_data[self.balloon_data["Hour"] == hour].index
+        difference = ending_hour - starting_hour
+        if len(df) == 0:
+            raise IndexError ("Hour too far")
+
+
+        starting_location = (self.balloon_data["Latitude"].to_numpy(), self.balloon_data["Longitude"].to_numpy())
+        ending_location   = (self.balloon_data["Latitude"].to_numpy(), self.balloon_data["Longitude"].to_numpy())
+        # reverse the speed and bearing
+        distances, bearing = earth_distance(starting_location,ending_location)
+        distances = distances / difference
+        lat, long = move_distance_to_lat_long(df["Latitude"].to_numpy(), df["Longitude"].to_numpy(), distances, bearing)
+
+        self.balloon_data.loc[idx, "Latitude"]  = lat
+        self.balloon_data.loc[idx, "Longitude"] = long
+        self.balloon_data.loc[idx, "Elevation"] = df["Elevation"]
+        self.balloon_data.loc[idx, "Speed"]     = distances
+        self.balloon_data.loc[idx, "Bearing"]   = bearing
+        
+
+    def fill_missing_hours(self, start_hour = 0, end_hour = 23):
+        # Left exterpolation
+        for hour in range(start_hour, end_hour, 1):
+            if self.hour_unavailable(hour):
+                self.exterpolate_left(hour)
+            else:
+                break
+        for hour in range(end_hour, start_hour, -1):
+            if self.hour_unavailable(hour):
+                self.exterpolate_right(hour)
+            else:
+                break
+
+        for hour in range(start_hour, end_hour):
+            if self.hour_unavailable(hour):
+                # find the largest filled in hour
+                for starting_hour in range(start_hour, end_hour):
+                    if self.hour_unavailable(starting_hour):
+                        continue
+                    else:
+                        self.interpolate(hour, starting_hour=starting_hour, ending_hour=hour-1)
+        self.save_balloon_data()
+
+                
+        
+
+
+
+    def fill_missing_hours2(self, start_hour, end_hour):
         left = start_hour
         right  = start_hour + 1
         start_flag = False
         df = self.balloon_data
         while left != end_hour:
-            
             if right >= end_hour:
                     right_data = df[df["Hour"] == right]
                     left_data = df[df["Hour"] == left]

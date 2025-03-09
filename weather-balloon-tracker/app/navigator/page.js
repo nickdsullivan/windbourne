@@ -30,17 +30,11 @@ function NavigatorContent() {
 
 
     useEffect(() => {
-        let url = `https://dear-jolly-sunbeam.ngrok-free.app/get-directions-map?balloon_id=${balloonId}&hour=0&x=${targetPosition.lat}&y=${targetPosition.long}`
+        let url = `${API_BASE_URL}/get-directions-map?balloon_id=${balloonId}&hour=0&x=${targetPosition.lat}&y=${targetPosition.long}`
         if (!hasDirections) {
-            url = `https://dear-jolly-sunbeam.ngrok-free.app/single-balloon-map-navigator?balloon_id=${balloonId}&hour=0&x=${targetPosition.lat}&y=${targetPosition.long}`
+            url = `${API_BASE_URL}/single-balloon-map-navigator?balloon_id=${balloonId}&hour=0&x=${targetPosition.lat}&y=${targetPosition.long}`
         }
-        fetch(url, {
-            method: 'GET',
-            headers: {
-                'ngrok-skip-browser-warning': 'true',
-            },
-        })
-
+        fetch(url)
             .then((response) => response.blob())
             .then((blob) => {
                 const imageObjectUrl = URL.createObjectURL(blob);
@@ -51,12 +45,7 @@ function NavigatorContent() {
 
 
     useEffect(() => {
-        fetch(`https://dear-jolly-sunbeam.ngrok-free.app/balloon-details?balloon_id=${balloonId}&hour=0`, {
-            method: 'GET',
-            headers: {
-                'ngrok-skip-browser-warning': 'true'
-            }
-        })
+        fetch(`${API_BASE_URL}/balloon-details?balloon_id=${balloonId}&hour=0`)
             .then((res) => res.json())
             .then((data) => {
                 setBalloonPosition(data);
@@ -100,12 +89,7 @@ function NavigatorContent() {
         setIsNavigating(true);
 
 
-        fetch(`https://dear-jolly-sunbeam.ngrok-free.app/start-navigation?lat=${balloonPosition.lat}&long=${balloonPosition.long}&alt=${balloonPosition.alt}&t_lat=${targetPosition.lat}&t_long=${targetPosition.long}&t_alt=${targetPosition.alt}&max_iters=${maxIters}&beam_width=${beamWidth}`, {
-            method: 'GET',
-            headers: {
-                'ngrok-skip-browser-warning': 'true'
-            }
-        })
+        fetch(`${API_BASE_URL}/start-navigation?lat=${balloonPosition.lat}&long=${balloonPosition.long}&alt=${balloonPosition.alt}&t_lat=${targetPosition.lat}&t_long=${targetPosition.long}&t_alt=${targetPosition.alt}&max_iters=${maxIters}&beam_width=${beamWidth}`)
             .then((response) => {
                 if (!response.ok) {
                     throw new Error("Failed to get path");

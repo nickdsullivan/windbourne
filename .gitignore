@@ -6,3 +6,4 @@ testing/gif
 testing/.DS_Store
 src/__pycache__/data_collector.cpython-313.pyc
 old\ code
+weather-balloon-tracker/.env.local

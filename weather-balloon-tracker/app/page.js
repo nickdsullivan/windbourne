@@ -1,9 +1,12 @@
 "use client"; // Needed for React hooks in Next.js
+
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 export default function Home() {
+  const API_BASE_URL = process.env.NEXT_PUBLIC_BACK_END_BASE_URL;
   const [mapImageUrl, setMapImageUrl] = useState(null);
   const [windGIFUrl, setWindGIFUrl] = useState(null);
+  
   const [refreshTime, setRefreshTime] = useState(null);
   const [selectedHour, setSelectedHour] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -21,7 +24,8 @@ export default function Home() {
 
 
   const checkRefresh = () => {
-    console.log("Checking");
+    
+    console.log(API_BASE_URL);
     console.log(refreshTime);
     if (refreshTime) {
       const now = new Date(); // Current local time
@@ -42,12 +46,7 @@ export default function Home() {
 
   useEffect(() => {
     fetchRefreshTime(); 
-    fetch(`https://dear-jolly-sunbeam.ngrok-free.app/balloon-map?hour=${selectedHour}`, {
-      method: 'GET',
-      headers: {
-        'ngrok-skip-browser-warning': 'true',
-      },
-    })
+    fetch(`${API_BASE_URL}/balloon-map?hour=${selectedHour}`)
       .then((response) => response.blob()) 
       .then((blob) => {
         const imageObjectUrl = URL.createObjectURL(blob); 
@@ -59,12 +58,7 @@ export default function Home() {
 
   useEffect(() => {
     if (selectedBalloon){
-      fetch(`https://dear-jolly-sunbeam.ngrok-free.app/wind-column?balloon_id=${selectedBalloon.id}&hour=${selectedHour}`, {
-        method: 'GET',
-        headers: {
-          'ngrok-skip-browser-warning': 'true',
-        },
-      })
+      fetch(`${API_BASE_URL}/wind-column?balloon_id=${selectedBalloon.id}&hour=${selectedHour}`)
         .then((response) => response.blob()) 
         .then((blob) => {
           const gifObjectUrl = URL.createObjectURL(blob); 
@@ -90,12 +84,7 @@ export default function Home() {
   const handleRefreshClick = () => {
     setIsRefreshing(true);
 
-    fetch("https://dear-jolly-sunbeam.ngrok-free.app/refresh-data", {
-      method: 'GET',
-      headers: {
-        'ngrok-skip-browser-warning': 'true',
-      },
-    })
+    fetch(`${API_BASE_URL}/refresh-data`)
       .then((response) => {
         if (!response.ok) {
           console.log(response);
@@ -117,12 +106,7 @@ export default function Home() {
 
   // Function to fetch the latest refresh time
   const fetchRefreshTime = () => {
-    fetch("https://dear-jolly-sunbeam.ngrok-free.app/get-refresh-time", {
-      method: 'GET',
-      headers: {
-        'ngrok-skip-browser-warning': 'true',
-      },
-    })
+    fetch(`${API_BASE_URL}/get-refresh-time`)
       .then((response) => response.json())
       .then((data) => {
         // Convert UTC to local time
@@ -150,12 +134,7 @@ export default function Home() {
 
 
   useEffect(() => {
-    fetch(`https://dear-jolly-sunbeam.ngrok-free.app/get-positions?hour=${selectedHour}`, {
-      method: 'GET',
-      headers: {
-        'ngrok-skip-browser-warning': 'true',
-      },
-    })
+    fetch(`${API_BASE_URL}/get-positions?hour=${selectedHour}`)
       .then((res) => res.json())
       .then((data) => setBalloonPositions(data))
       .catch((error) => console.error("Error fetching positions:", error));
@@ -354,7 +333,7 @@ export default function Home() {
               <p><strong>Bearing:</strong> {selectedBalloon.bearing.toFixed(2) ?? "N/A"}°</p>
               <div style={{ marginTop: "1rem", textAlign: "center" }}>
                 <img
-                  src={`https://dear-jolly-sunbeam.ngrok-free.app/wind-column?balloon_id=${selectedBalloon.id}&hour=${selectedHour}`}
+                  src={`${API_BASE_URL}/wind-column?balloon_id=${selectedBalloon.id}&hour=${selectedHour}`}
                   alt={`Wind Column for balloon #${selectedBalloon.id}`}
                   style={{
                     maxWidth: "100%",
