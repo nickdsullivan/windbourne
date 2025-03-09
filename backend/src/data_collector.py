@@ -450,6 +450,7 @@ class DataCollector:
                 
         for hour in range(start_hour, end_hour):
             if self.hour_unavailable(hour):
+                print("Found", hour)
                 # find the largest filled in hour
                 for starting_hour in range(start_hour, end_hour):
                     if self.hour_unavailable(starting_hour):
