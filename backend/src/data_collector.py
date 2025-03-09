@@ -106,7 +106,6 @@ class DataCollector:
         time = time_zero + timedelta(hours=hour)
         return time
     def save_balloon_data(self):
-        print("Saving balloon data")
         self.balloon_data.to_csv(self.balloon_data_filename,index=False)
     # Doesn't save the wind data as a csv
     def get_wind(self, lat, long, time = None) -> pd.DataFrame:
@@ -268,8 +267,6 @@ class DataCollector:
             print(f"Invalid JSON response: {e}, response text: {response.text}")
             return None, None
         
-
-
     def get_meteo_data_bulk(self, latitude: list, longitude: list, query_time, pressures = [250], start_date = None, end_date = None):
         print(f"# locs: {len(latitude)}")
         url = "https://api.open-meteo.com/v1/forecast"
@@ -407,6 +404,7 @@ class DataCollector:
         self.balloon_data.loc[idx, "Elevation"] = df["Elevation"]
         self.balloon_data.loc[idx, "Speed"]     = speed
         self.balloon_data.loc[idx, "Bearing"]   = bearing
+        print(self.balloon_data[self.balloon_data["Hour"]])
     
         
     def interpolate(self, hour, starting_hour, ending_hour):
@@ -419,8 +417,8 @@ class DataCollector:
             raise IndexError ("Hour too far")
 
 
-        starting_location = (self.balloon_data["Latitude"].to_numpy(), self.balloon_data["Longitude"].to_numpy())
-        ending_location   = (self.balloon_data["Latitude"].to_numpy(), self.balloon_data["Longitude"].to_numpy())
+        starting_location = (self.starting_df["Latitude"].to_numpy(), self.starting_df["Longitude"].to_numpy())
+        ending_location   = (self.ending_df["Latitude"].to_numpy(), self.ending_df["Longitude"].to_numpy())
         # reverse the speed and bearing
         distances, bearing = earth_distance(starting_location,ending_location)
         distances = distances / difference
@@ -431,6 +429,7 @@ class DataCollector:
         self.balloon_data.loc[idx, "Elevation"] = df["Elevation"]
         self.balloon_data.loc[idx, "Speed"]     = distances
         self.balloon_data.loc[idx, "Bearing"]   = bearing
+        print(self.balloon_data[self.balloon_data["Hour"]])
         
 
     def fill_missing_hours(self, start_hour = 0, end_hour = 23):
