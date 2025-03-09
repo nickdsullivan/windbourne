@@ -106,6 +106,7 @@ class DataCollector:
         time = time_zero + timedelta(hours=hour)
         return time
     def save_balloon_data(self):
+        print("Saving balloon data")
         self.balloon_data.to_csv(self.balloon_data_filename,index=False)
     # Doesn't save the wind data as a csv
     def get_wind(self, lat, long, time = None) -> pd.DataFrame:
