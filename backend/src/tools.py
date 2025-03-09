@@ -21,6 +21,8 @@ def earth_distance(loc1,loc2):
     Y = np.cos(lat1) * np.sin(lat2) - np.sin(lat1) * np.cos(lat2) * np.cos(delta_lambda)
     angle = np.arctan2(X,Y) / (np.pi/180)
     angle = np.where(angle < 0, 360 + angle, angle)
+    distance = np.round(distance,3)
+    angle = np.round(angle,3)
     return distance, angle
 
 
@@ -36,6 +38,8 @@ def move_distance_to_lat_long(lat, lon, distance_km, bearing):
     new_lon = lon + np.arctan2(np.sin(bearing) * np.sin(distance_km / R) * np.cos(lat), np.cos(distance_km / R) - np.sin(lat) * np.sin(new_lat))
     new_lat = np.rad2deg(new_lat)
     new_lon = np.rad2deg(new_lon)
+    new_lat = new_lat.round(new_lat,3)
+    new_lon = new_lon.round(new_lon,3)
     return new_lat, new_lon
 
 

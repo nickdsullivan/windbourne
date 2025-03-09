@@ -66,9 +66,9 @@ class DataCollector:
                 balloon_row = {
                        "Balloon": balloon,       
                        "Datetime": time, 
-                       "Latitude": data[balloon][0],
-                       "Longitude": data[balloon][1],
-                       "Elevation": data[balloon][2],
+                       "Latitude": round(data[balloon][0],3),
+                       "Longitude": round(data[balloon][1],3),
+                       "Elevation": round(data[balloon][2],3),
                        "Speed": np.nan,
                        "Bearing": np.nan,
                        "Hour": hour,
@@ -122,9 +122,9 @@ class DataCollector:
         for i in range(len(speeds)):
             new_row = {
                 "Datetime": time,
-                "Latitude": lat,
-                "Longitude": long,
-                "Elevation": self.elevations[i],
+                "Latitude": round(lat,3),
+                "Longitude": round(long,3),
+                "Elevation": round(self.elevations[i],3),
                 "Pressure": pressures[i],
                 "Speed": speeds[i],
                 "Bearing": bearings[i]
@@ -154,9 +154,9 @@ class DataCollector:
         for i in range(len(speeds)):
             new_row = {
                 "Datetime": time,
-                "Latitude": lat,
-                "Longitude": long,
-                "Elevation": self.elevations[i],
+                "Latitude": round(lat,3),
+                "Longitude": round(long,3),
+                "Elevation": round(self.elevations[i],3),
                 "Pressure": pressures[i],
                 "Speed": speeds[i],
                 "Bearing": bearings[i]
