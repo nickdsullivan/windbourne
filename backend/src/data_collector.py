@@ -188,6 +188,8 @@ class DataCollector:
                 unfound_lats.append(lat)
                 unfound_longs.append(long)
             else:
+                unfound_lats.append(lat)
+                unfound_longs.append(long)
                 df = pd.concat([df, new_data])
         speeds, bearings = self.get_meteo_data_bulk(lat, long, time, pressures, start_date = start_time, end_date = end_time)
         return
