@@ -368,11 +368,9 @@ class DataCollector:
         return {"lat" : df["Latitude"].iloc[0], "long" : df["Longitude"].iloc[0], "alt":  df["Elevation"].iloc[0], "speed": df["Speed"].iloc[0], "bearing": df["Bearing"].iloc[0]}
 
     def hour_unavailable(self,hour):
-        print(self.balloon_data[self.balloon_data["Hour"] == hour]["Latitude"].isna().all())
         return self.balloon_data[self.balloon_data["Hour"] == hour]["Latitude"].isna().all()
 
     def exterpolate_left(self, hour):
-        print("Left")
         df = self.balloon_data[self.balloon_data["Hour"] == hour + 1]
         idx = self.balloon_data[self.balloon_data["Hour"] == hour].index
         if len(df) == 0:
@@ -388,11 +386,9 @@ class DataCollector:
         self.balloon_data.loc[idx, "Elevation"] = df["Elevation"]
         self.balloon_data.loc[idx, "Speed"]     = speed
         self.balloon_data.loc[idx, "Bearing"]   = bearing
-        print(self.balloon_data[self.balloon_data["Hour"]==hour])
 
 
     def exterpolate_right(self, hour):
-        print("Right")
         df = self.balloon_data[self.balloon_data["Hour"] == hour - 1]
         idx = self.balloon_data[self.balloon_data["Hour"] == hour].index
         if len(df) == 0:
@@ -408,7 +404,7 @@ class DataCollector:
         self.balloon_data.loc[idx, "Elevation"] = df["Elevation"]
         self.balloon_data.loc[idx, "Speed"]     = speed
         self.balloon_data.loc[idx, "Bearing"]   = bearing
-        print(self.balloon_data[self.balloon_data["Hour"]==hour])
+        
     
         
     def interpolate(self, hour, starting_hour, ending_hour):
@@ -425,6 +421,7 @@ class DataCollector:
         ending_location   = (ending_df["Latitude"].to_numpy(), ending_df["Longitude"].to_numpy())
         # reverse the speed and bearing
         distances, bearing = earth_distance(starting_location,ending_location)
+        print(difference)
         distances = distances / difference
         lat, long = move_distance_to_lat_long(df["Latitude"].to_numpy(), df["Longitude"].to_numpy(), distances, bearing)
 
