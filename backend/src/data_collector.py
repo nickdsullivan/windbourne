@@ -388,7 +388,7 @@ class DataCollector:
         self.balloon_data.loc[idx, "Elevation"] = df["Elevation"]
         self.balloon_data.loc[idx, "Speed"]     = speed
         self.balloon_data.loc[idx, "Bearing"]   = bearing
-        print(self.balloon_data[self.balloon_data["Hour"]])
+        print(self.balloon_data[self.balloon_data["Hour"]==hour])
 
 
     def exterpolate_right(self, hour):
@@ -408,7 +408,7 @@ class DataCollector:
         self.balloon_data.loc[idx, "Elevation"] = df["Elevation"]
         self.balloon_data.loc[idx, "Speed"]     = speed
         self.balloon_data.loc[idx, "Bearing"]   = bearing
-        print(self.balloon_data[self.balloon_data["Hour"]])
+        print(self.balloon_data[self.balloon_data["Hour"]==hour])
     
         
     def interpolate(self, hour, starting_hour, ending_hour):
