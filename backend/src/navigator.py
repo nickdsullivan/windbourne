@@ -61,6 +61,7 @@ class Navigator:
             
             closest_node = self.get_closest_node(self.current_list)
             print(f"{index/max_iters:.2f} {closest_node}")
+            
             children = self.explore_nodes(self.current_list)
             signatures = set()
             for child in children:
@@ -144,6 +145,8 @@ class Navigator:
     
 
     def explore_nodes(self, nodes):
+        if len(nodes) == 1:
+            return self.explore_node(nodes[0])
         results = self.get_wind_state_multi_loc(nodes)
         for node in nodes:
             speeds, bearings, alts = results[node.id]
@@ -163,12 +166,10 @@ class Navigator:
 
     def get_wind_state_multi_loc(self, nodes):
         locations = []
-        # The times should be the same
         for node in nodes:
             locations.append((node.lat, node.long))
             
         query_time = self.dc.hour2time(nodes[0].hour)
-        locations.append((0.0000,0.0000))
         df = self.dc.get_and_save_wind_multi_loc(locations=locations, query_time=query_time)
         if len(df) == 0:
             return None, None, None

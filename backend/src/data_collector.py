@@ -287,8 +287,6 @@ class DataCollector:
             for location in data:
                 speeds = []
                 directions = []
-                print(data)
-                print(location)
                 times = list(map(convert_time_string_meteo, location["hourly"]["time"]))
                 for pressure in pressures:
                     speeds.append(location["hourly"][f"wind_speed_{pressure}hPa"][times.index(query_time)])
