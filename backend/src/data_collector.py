@@ -197,6 +197,8 @@ class DataCollector:
         for loc_index in range(len(results)):
             lat, long = locations[loc_index]
             speeds, bearings = results[loc_index]
+            print(speeds)
+            print(len(speeds))
             if speeds is None or bearings is None:
                 return df
             for i in range(len(speeds)):
