@@ -371,14 +371,15 @@ class DataCollector:
         return self.balloon_data[self.balloon_data["Hour"] == hour].isna().all().all()
 
     def exterpolate_left(self, hour):
+        print("Left")
         df = self.balloon_data[self.balloon_data["Hour"] == hour + 1]
         idx = self.balloon_data[self.balloon_data["Hour"] == hour].index
         if len(df) == 0:
             raise IndexError ("Hour too far")
 
         # reverse the speed and bearing
-        speed = df["Speed"].to_numpy()
-        bearing = df["Bearing"].to_numpy()
+        speed = (df["Speed"].to_numpy() * -1)
+        bearing = (df["Bearing"].to_numpy() + 180) % 360
         lat, long = move_distance_to_lat_long(df["Latitude"].to_numpy(), df["Longitude"].to_numpy(), speed, bearing)
 
         self.balloon_data.loc[idx, "Latitude"]  = lat
@@ -386,17 +387,19 @@ class DataCollector:
         self.balloon_data.loc[idx, "Elevation"] = df["Elevation"]
         self.balloon_data.loc[idx, "Speed"]     = speed
         self.balloon_data.loc[idx, "Bearing"]   = bearing
+        print(self.balloon_data[self.balloon_data["Hour"]])
 
 
     def exterpolate_right(self, hour):
+        print("Right")
         df = self.balloon_data[self.balloon_data["Hour"] == hour - 1]
         idx = self.balloon_data[self.balloon_data["Hour"] == hour].index
         if len(df) == 0:
             raise IndexError ("Hour too far")
 
         # reverse the speed and bearing
-        speed = df["Speed"].to_numpy() * -1 
-        bearing = (df["Bearing"].to_numpy() + 180) % 360
+        speed = df["Speed"].to_numpy()
+        bearing = df["Bearing"].to_numpy()
         lat, long = move_distance_to_lat_long(df["Latitude"].to_numpy(), df["Longitude"].to_numpy(), speed, bearing)
 
         self.balloon_data.loc[idx, "Latitude"]  = lat
@@ -429,7 +432,6 @@ class DataCollector:
         self.balloon_data.loc[idx, "Elevation"] = df["Elevation"]
         self.balloon_data.loc[idx, "Speed"]     = distances
         self.balloon_data.loc[idx, "Bearing"]   = bearing
-        print(self.balloon_data[self.balloon_data["Hour"]])
         
 
     def fill_missing_hours(self, start_hour = 0, end_hour = 23):
