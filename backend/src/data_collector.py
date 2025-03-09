@@ -169,9 +169,9 @@ class DataCollector:
         return df
 
     # Multi location wind
-    def get_and_save_wind_multi_loc(self, locations, current_time) -> pd.DataFrame:
-        start_time = current_time.strftime("%Y-%m-%d")
-        end_time = (current_time + timedelta(days=1)).strftime("%Y-%m-%d")
+    def get_and_save_wind_multi_loc(self, locations, query_time) -> pd.DataFrame:
+        start_time = query_time.strftime("%Y-%m-%d")
+        end_time = (query_time + timedelta(days=1)).strftime("%Y-%m-%d")
         pressures = []
         for elevation in self.elevations:
             pressures.append(elevation_to_pressure(elevation))
@@ -180,13 +180,13 @@ class DataCollector:
         df = self.winddata.iloc[0:0]
         for location in locations:
             lat, long = location[0], location[1]
-            new_data = self.get_wind_data_from_csv(lat, long, current_time)
+            new_data = self.get_wind_data_from_csv(lat, long, query_time)
             if len(new_data) == 0:
                 unfound_lats.append(lat)
                 unfound_longs.append(long)
             else:
                 df = pd.concat([df, new_data])
-        results = self.get_meteo_data_bulk(unfound_lats, unfound_longs, current_time, pressures, start_date=start_time, end_date=end_time)
+        results = self.get_meteo_data_bulk(unfound_lats, unfound_longs, query_time, pressures, start_date=start_time, end_date=end_time)
         
         for loc_index in range(len(results)):
             lat, long = locations[loc_index]
@@ -261,7 +261,7 @@ class DataCollector:
         
 
 
-    def get_meteo_data_bulk(self, latitude: list, longitude: list, current_time: list, pressures = [250], start_date = None, end_date = None):
+    def get_meteo_data_bulk(self, latitude: list, longitude: list, query_time, pressures = [250], start_date = None, end_date = None):
 
         url = "https://api.open-meteo.com/v1/forecast"
         data_cats = []
@@ -289,8 +289,8 @@ class DataCollector:
                 directions = []
                 times = list(map(convert_time_string_meteo, location["hourly"]["time"]))
                 for pressure in pressures:
-                    speeds.append(location["hourly"][f"wind_speed_{pressure}hPa"][times.index(current_time)])
-                    directions.append(location["hourly"][f"wind_direction_{pressure}hPa"][times.index(current_time)])
+                    speeds.append(location["hourly"][f"wind_speed_{pressure}hPa"][times.index(query_time)])
+                    directions.append(location["hourly"][f"wind_direction_{pressure}hPa"][times.index(query_time)])
                 results.append((speeds,directions))
             return results
 

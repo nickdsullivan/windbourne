@@ -163,21 +163,13 @@ class Navigator:
 
     def get_wind_state_multi_loc(self, nodes):
         locations = []
-        max_hour = float("-inf")
-        min_hour = float("inf")
         # The times should be the same
         for node in nodes:
-            #set max and min times from node.time
-            if node.hour > max_hour:
-                max_hour = node.hour
-            if node.hour < min_hour:
-                min_hour = node.hour
             locations.append((node.lat, node.long))
             
-        start_time = self.dc.hour2time(min_hour)
-        end_time = self.dc.hour2time(max_hour)
+        current_time = self.dc.hour2time(nodes[0].hour)
         locations.append((0.0000,0.0000))
-        df = self.dc.get_and_save_wind_multi_loc(locations=locations, times=start_time, start_time = start_time, end_time=end_time)
+        df = self.dc.get_and_save_wind_multi_loc(locations=locations, current_time=current_time)
         if len(df) == 0:
             return None, None, None
         results = {}
