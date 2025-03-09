@@ -38,8 +38,8 @@ def move_distance_to_lat_long(lat, lon, distance_km, bearing):
     new_lon = lon + np.arctan2(np.sin(bearing) * np.sin(distance_km / R) * np.cos(lat), np.cos(distance_km / R) - np.sin(lat) * np.sin(new_lat))
     new_lat = np.rad2deg(new_lat)
     new_lon = np.rad2deg(new_lon)
-    new_lat = new_lat.round(new_lat,3)
-    new_lon = new_lon.round(new_lon,3)
+    new_lat = np.round(new_lat,3)
+    new_lon = np.round(new_lon,3)
     return new_lat, new_lon
 
 

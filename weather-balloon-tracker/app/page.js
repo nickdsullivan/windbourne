@@ -19,7 +19,29 @@ export default function Home() {
   const [displayedImageSize, setDisplayedImageSize] = useState({ width: 0, height: 0 });
 
 
+
+  const checkRefresh = () => {
+    console.log("Checking");
+    console.log(refreshTime);
+    if (refreshTime) {
+      const now = new Date(); // Current local time
+      const refreshTimeValue = new Date(refreshTime);
+      const diffInMs = now - refreshTimeValue;
+      const diffInHours = diffInMs / (1000 * 60 * 60); // Convert ms to hours
+      console.log(diffInHours);
+
+      if (diffInHours > 1) {
+        console.log("Last refresh was more than 1 hour ago. Refreshing...");
+        handleRefreshClick();
+      }
+      else{
+        console.log("No refresh");
+      }
+    }
+  };
+
   useEffect(() => {
+    fetchRefreshTime(); 
     fetch(`https://dear-jolly-sunbeam.ngrok-free.app/balloon-map?hour=${selectedHour}`, {
       method: 'GET',
       headers: {
@@ -53,24 +75,11 @@ export default function Home() {
 
 
   useEffect(() => {
-    fetchRefreshTime(); // Get the latest refresh time on page load
+    
     updateImageSize();
-
-    const checkRefresh = () => {
-      if (refreshTime) {
-        const now = new Date(); // Current local time
-        const diffInMs = now - refreshTime;
-        const diffInHours = diffInMs / (1000 * 60 * 60); // Convert ms to hours
-
-        if (diffInHours > 1) {
-          console.log("Last refresh was more than 1 hour ago. Refreshing...");
-          handleRefreshClick();
-        }
-        else{
-          console.log("No refresh");
-        }
-      }
-    };
+    fetchRefreshTime(); 
+    
+    
 
     // Run check on page load and every 1 minute
     const interval = setInterval(checkRefresh, 60 * 1000);
@@ -121,6 +130,7 @@ export default function Home() {
         const utcDate = new Date(data.time_utc + "Z");
         const localTime = utcDate.toLocaleString();
         setRefreshTime(localTime);
+        checkRefresh();
       })
       .catch((error) => console.error("Error fetching refresh time:", error));
   };
