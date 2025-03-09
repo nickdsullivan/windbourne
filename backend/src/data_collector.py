@@ -417,8 +417,8 @@ class DataCollector:
             raise IndexError ("Hour too far")
 
 
-        starting_location = (self.starting_df["Latitude"].to_numpy(), self.starting_df["Longitude"].to_numpy())
-        ending_location   = (self.ending_df["Latitude"].to_numpy(), self.ending_df["Longitude"].to_numpy())
+        starting_location = (starting_df["Latitude"].to_numpy(), starting_df["Longitude"].to_numpy())
+        ending_location   = (ending_df["Latitude"].to_numpy(), ending_df["Longitude"].to_numpy())
         # reverse the speed and bearing
         distances, bearing = earth_distance(starting_location,ending_location)
         distances = distances / difference
