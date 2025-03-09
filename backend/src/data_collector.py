@@ -171,7 +171,7 @@ class DataCollector:
     # Multi location wind
     def get_and_save_wind_multi_loc(self, locations, start_time, end_time) -> pd.DataFrame:
         if start_time == end_time:
-            end_time = end_time + timedelta(day=1) 
+            end_time = end_time + timedelta(days=1) 
 
         start_time = start_time.strftime("%Y-%m-%d")
         end_time = end_time.strftime("%Y-%m-%d")
