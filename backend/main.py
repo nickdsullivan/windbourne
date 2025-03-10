@@ -27,10 +27,10 @@ app.add_middleware(
 
 @app.get("/refresh-data")
 def refresh_data():
-    clear_folder("./images")
-    clear_folder("./wind_column")
-    dc.clear()
-    dc.download_windborne_data()
+    # clear_folder("./images")
+    # clear_folder("./wind_column")
+    # dc.clear()
+    # dc.download_windborne_data()
     dc.add_balloon_speed()
     dc.fill_missing_hours(0, 23)
     return {"Status": "ok"}

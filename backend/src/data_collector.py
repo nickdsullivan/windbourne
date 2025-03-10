@@ -379,7 +379,6 @@ class DataCollector:
         # reverse the speed and bearing
         speed = (df["Speed"].to_numpy() * -1)
         bearing = (df["Bearing"].to_numpy() + 180) % 360
-        print(df["Latitude"].to_numpy()[0], df["Longitude"].to_numpy()[0], speed[0], bearing[0])
         lat, long = move_distance_to_lat_long(df["Latitude"].to_numpy(), df["Longitude"].to_numpy(), speed, bearing)
 
         self.balloon_data.loc[idx, "Latitude"]  = lat
@@ -387,7 +386,6 @@ class DataCollector:
         self.balloon_data.loc[idx, "Elevation"] = df["Elevation"].values
         self.balloon_data.loc[idx, "Speed"]     = speed
         self.balloon_data.loc[idx, "Bearing"]   = bearing
-        print(self.balloon_data[self.balloon_data["Hour"]==hour])
 
 
     def exterpolate_right(self, hour):
@@ -408,7 +406,6 @@ class DataCollector:
         self.balloon_data.loc[idx, "Elevation"] = df["Elevation"].values
         self.balloon_data.loc[idx, "Speed"]     = speed
         self.balloon_data.loc[idx, "Bearing"]   = bearing
-        print(self.balloon_data[self.balloon_data["Hour"]==hour])
         
     
         
@@ -434,12 +431,11 @@ class DataCollector:
         self.balloon_data.loc[idx, "Elevation"] = elevations
         self.balloon_data.loc[idx, "Speed"]     = distances
         self.balloon_data.loc[idx, "Bearing"]   = bearing
-        print(self.balloon_data[self.balloon_data["Hour"]==hour])
         
 
     def fill_missing_hours(self, start_hour = 0, end_hour = 23):
         # Left exterpolation
-        for hour in range(start_hour, end_hour, 1):
+        for hour in range(start_hour, end_hour+1, 1):
             if self.hour_unavailable(hour):
                 continue
             else:
@@ -452,15 +448,15 @@ class DataCollector:
             if self.hour_unavailable(hour):
                 continue
             else:
-                for next_hour_right in range(hour, end_hour, 1):
+                for next_hour_right in range(hour, end_hour+1, 1):
                     print("Found right: ", next_hour_right)
                     self.exterpolate_right(next_hour_right)
                 break
                 
-        for hour in range(start_hour, end_hour):
+        for hour in range(start_hour, end_hour+1):
             if self.hour_unavailable(hour):
                 # find the largest filled in hour
-                for starting_hour in range(hour, end_hour):
+                for starting_hour in range(hour, end_hour+1):
                     if self.hour_unavailable(starting_hour):
                         continue
                     else:
