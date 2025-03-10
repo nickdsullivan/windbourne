@@ -440,20 +440,21 @@ class DataCollector:
     def fill_missing_hours(self, start_hour = 0, end_hour = 23):
         # Left exterpolation
         for hour in range(start_hour, end_hour, 1):
-            print(hour)
-            
             if self.hour_unavailable(hour):
-                print("Found left: ", hour)
-                self.exterpolate_left(hour)
+                continue
             else:
+                for next_hour_left in range(hour, start_hour, -1):
+                    print("Found left: ", next_hour_left)
+                    self.exterpolate_left(next_hour_left)
                 break
+       
         for hour in range(end_hour, start_hour, -1):
-            print(hour)
-            
             if self.hour_unavailable(hour):
-                print("Found right: ", hour)
-                self.exterpolate_right(hour)
+                
             else:
+                for next_hour_right in range(hour, end_hour, 1):
+                    print("Found right: ", next_hour_right)
+                    self.exterpolate_right(next_hour_right)
                 break
                 
         for hour in range(start_hour, end_hour):
