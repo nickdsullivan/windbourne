@@ -7,6 +7,7 @@ from src.visualize import Visualizer
 from src.navigator import Navigator
 from src.tools import was_file_created_last_hour, clear_folder, pixels2loc
 import math
+import datetime
 dc = DataCollector()
 df = dc.balloon_data
 visualizer = Visualizer()
@@ -27,6 +28,7 @@ app.add_middleware(
 
 @app.get("/refresh-data")
 def refresh_data():
+    print(f"{datetime.datetime.now().strftime("%m/%d %H:%M:%S")} refresh-data")
     clear_folder("./images")
     clear_folder("./wind_column")
     dc.clear()
@@ -41,6 +43,7 @@ def refresh_data():
 
 @app.get("/balloon-map")
 def get_balloon_map(hour=0):
+    print(f"{datetime.datetime.now().strftime("%m/%d %H:%M:%S")} balloon-map (hour = {hour})")
     hour = int(hour)
     filename = f"images/current_positions_{hour}.png" 
     if not was_file_created_last_hour(filename):
@@ -55,7 +58,7 @@ def get_balloon_map(hour=0):
 
 @app.get("/wind-column")
 def get_balloon_map(balloon_id, hour=0):
-    
+    print(f"{datetime.datetime.now().strftime("%m/%d %H:%M:%S")} wind-column (ballon_id = {balloon_id}, hour = {hour}")
     hour = int(hour)
     balloon_id = int(balloon_id)
     lat, long, elevation = dc.get_balloon_location(balloon_id, hour)
@@ -85,7 +88,7 @@ def get_balloon_map(balloon_id, hour=0):
 
 @app.get("/get-positions")
 def get_positions(hour=0):
-    print(f"get-positions hour:{hour}")
+    print(f"{datetime.datetime.now().strftime("%m/%d %H:%M:%S")} get-positions (hour = {hour}")
     hour = int(hour)
     return JSONResponse(content= visualizer.get_positions(df,hour))
 
@@ -93,11 +96,14 @@ def get_positions(hour=0):
 
 @app.get("/get-refresh-time")
 def get_refresh_time():
+    print(f"{datetime.datetime.now().strftime("%m/%d %H:%M:%S")} refresh-time")
     return {"time_utc" : dc.latest_collection_time}
     
 
 @app.get("/balloon-details")
 def get_balloon_details(balloon_id, hour = 0):
+    print(f"{datetime.datetime.now().strftime("%m/%d %H:%M:%S")} balloon-details (ballon_id = {balloon_id}, hour = {hour}")
+
     balloon_id = int(balloon_id)
     hour = int(hour)
     return JSONResponse(content= dc.get_balloon_details_as_json(balloon_id,hour))
@@ -105,6 +111,7 @@ def get_balloon_details(balloon_id, hour = 0):
 
 @app.get("/single-balloon-map-navigator")
 def single_balloon_map_navigator(balloon_id, hour = 0, x = -1, y = -1):
+    print(f"{datetime.datetime.now().strftime("%m/%d %H:%M:%S")} single-balloon-map-navigator (ballon_id = {balloon_id}, hour = {hour}, x = {x}, y = {y}")
     balloon_id = int(balloon_id)
     hour = int(hour)
     filename = f"images/single_{balloon_id}_{hour}.png"
@@ -129,6 +136,8 @@ last_node = None
 @app.get("/start-navigation")
 
 def start_navigation(lat, long, alt, t_lat, t_long, t_alt, max_iters = 20, beamWidth = 3):
+    print(f"{datetime.datetime.now().strftime("%m/%d %H:%M:%S")} start-navigation (lat = {lat}, long = {long}, alt = {alt}, t_lat = {t_lat}, t_long = {t_long}, max_iters = {max_iters}, beamWidth = {beamWidth}")
+
     navigator = Navigator()
     max_iters = max(min(int(max_iters),100),1)
     beamWidth = max(min(int(beamWidth),20),1)
@@ -164,7 +173,9 @@ def create_path_map(lat, long, alt, t_lat, t_long, t_alt, last_node, navigator):
 
 
 @app.get("/get-directions-map")
-def get_directions_map(balloon_id, hour = 0, x = -1, y = -1):
+def get_directions_map(balloon_id, hour = 0):
+    print(f"{datetime.datetime.now().strftime("%m/%d %H:%M:%S")} balloon-details (ballon_id = {balloon_id}, hour = {hour}")
+
     balloon_id = int(balloon_id)
     hour = int(hour)
     filename = f"images/current_path.png"

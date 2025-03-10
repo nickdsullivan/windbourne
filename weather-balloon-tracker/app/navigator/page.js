@@ -31,7 +31,7 @@ function NavigatorContent() {
 
 
     useEffect(() => {
-        let url = `${API_BASE_URL}/get-directions-map?balloon_id=${balloonId}&hour=0&x=${targetPosition.lat}&y=${targetPosition.long}`
+        let url = `${API_BASE_URL}/get-directions-map?balloon_id=${balloonId}&hour=0`
         if (!hasDirections) {
             url = `${API_BASE_URL}/single-balloon-map-navigator?balloon_id=${balloonId}&hour=0&x=${targetPosition.lat}&y=${targetPosition.long}`
         }

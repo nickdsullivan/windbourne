@@ -123,7 +123,7 @@ class DataCollector:
             return df
         speeds, bearings = self.get_meteo_data(lat, long, time, pressures)
         if speeds is None or bearings is None:
-            print("shooot")
+            print("No wind data found")
             return df
         for i in range(len(speeds)):
             new_row = {
@@ -271,7 +271,6 @@ class DataCollector:
             return None, None
         
     def get_meteo_data_bulk(self, latitude: list, longitude: list, query_time, pressures = [250], start_date = None, end_date = None):
-        print(f"# locs: {len(latitude)}")
         url = "https://api.open-meteo.com/v1/forecast"
         data_cats = []
         for pressure in pressures:
@@ -400,7 +399,6 @@ class DataCollector:
         # reverse the speed and bearing
         speed = df["Speed"].to_numpy()
         bearing = df["Bearing"].to_numpy()
-        print(df["Latitude"].to_numpy()[0], df["Longitude"].to_numpy()[0], speed[0], bearing[0])
         lat, long = move_distance_to_lat_long(df["Latitude"].to_numpy(), df["Longitude"].to_numpy(), speed, bearing)
         
         idx = self.balloon_data[self.balloon_data["Hour"] == hour].index
@@ -443,7 +441,6 @@ class DataCollector:
                 continue
             else:
                 for next_hour_left in range(hour, start_hour, -1):
-                    print("Found left: ", next_hour_left)
                     self.exterpolate_left(next_hour_left)
                 break
        
@@ -452,7 +449,6 @@ class DataCollector:
                 continue
             else:
                 for next_hour_right in range(hour, end_hour+1, 1):
-                    print("Found right: ", next_hour_right)
                     self.exterpolate_right(next_hour_right)
                 break
                 
