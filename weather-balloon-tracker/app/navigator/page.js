@@ -12,6 +12,7 @@ export default function NavigatorPage() {
 }
 
 function NavigatorContent() {
+    const API_BASE_URL = process.env.NEXT_PUBLIC_BACK_END_BASE_URL;
     const searchParams = useSearchParams();
     const balloonId = searchParams.get("balloonId");
     const [mapImageUrl, setMapImageUrl] = useState(null);
