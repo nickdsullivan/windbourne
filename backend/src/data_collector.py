@@ -39,6 +39,8 @@ class DataCollector:
                 raise IndexError
             response = requests.get(url)
             if response.status_code != 200:
+                if hour == 0:
+                    return -1
                 print(f"({hour}) Failed")
                 # We know there are 1000 balloons.  It is nice this doesn't change
                 for balloon in range(1000):
@@ -81,6 +83,7 @@ class DataCollector:
         self.balloon_data = self.balloon_data.drop_duplicates()
         self.balloon_data = self.balloon_data.reset_index(drop=False)
         self.balloon_data.to_csv(self.balloon_data_filename,index=False)
+        return 0
     def add_balloon_speed(self):
 
         times = pd.to_datetime(self.balloon_data["Datetime"]).unique().tolist()
