@@ -36,7 +36,7 @@ export default function Home() {
 
       if (diffInHours > 1) {
         console.log("Last refresh was more than 1 hour ago. Refreshing...");
-        handleRefreshClick();
+        //handleRefreshClick();
       }
       else{
         console.log("No refresh");
