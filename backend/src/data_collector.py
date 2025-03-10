@@ -450,7 +450,7 @@ class DataCollector:
        
         for hour in range(end_hour, start_hour, -1):
             if self.hour_unavailable(hour):
-                
+                continue
             else:
                 for next_hour_right in range(hour, end_hour, 1):
                     print("Found right: ", next_hour_right)
