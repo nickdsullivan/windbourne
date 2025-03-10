@@ -6,11 +6,13 @@ export default function Home() {
   const API_BASE_URL = process.env.NEXT_PUBLIC_BACK_END_BASE_URL;
   const [mapImageUrl, setMapImageUrl] = useState(null);
   const [windGIFUrl, setWindGIFUrl] = useState(null);
-  
+
   const [refreshTime, setRefreshTime] = useState(null);
   const [selectedHour, setSelectedHour] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [windColumn, getWindColumn] = useState(false);
+  const [windColumn, setWindColumn] = useState(false);
+  const [gettingWindColumn, setGettingWindColumn] = useState(false);
+  
   // Store the balloon positions, each assumed to have { id, x, y } in ORIGINAL coords
   const [balloonPositions, setBalloonPositions] = useState([]);
   const [realBalloonPositions, setRealBalloonPositions] = useState([]);
@@ -24,7 +26,7 @@ export default function Home() {
 
 
   const checkRefresh = () => {
-    
+
     console.log(API_BASE_URL);
     console.log(refreshTime);
     if (refreshTime) {
@@ -38,46 +40,40 @@ export default function Home() {
         console.log("Last refresh was more than 1 hour ago. Refreshing...");
         //handleRefreshClick();
       }
-      else{
+      else {
         console.log("No refresh");
       }
     }
   };
 
   useEffect(() => {
-    fetchRefreshTime(); 
     fetch(`${API_BASE_URL}/balloon-map?hour=${selectedHour}`)
-      .then((response) => response.blob()) 
+      .then((response) => response.blob())
       .then((blob) => {
-        const imageObjectUrl = URL.createObjectURL(blob); 
+        const imageObjectUrl = URL.createObjectURL(blob);
         setMapImageUrl(imageObjectUrl);
       })
       .catch((error) => console.error("Error fetching image:", error));
   }, [selectedHour]); // Re-fetch image when `selectedHour` changes
 
 
-  useEffect(() => {
-    if (selectedBalloon){
-      fetch(`${API_BASE_URL}/wind-column?balloon_id=${selectedBalloon.id}&hour=${selectedHour}`)
-        .then((response) => response.blob()) 
-        .then((blob) => {
-          const gifObjectUrl = URL.createObjectURL(blob); 
-          setWindGIFUrl(gifObjectUrl);
-        })
-        .catch((error) => console.error("Error fetching image:", error));
-  }}, [selectedHour,selectedBalloon?.id]); 
+  // useEffect(() => {
+  //   if (selectedBalloon) {
+  //     setGettingWindColumn(true);
+  //   }
+  // }, [selectedHour, selectedBalloon?.id]);
 
 
   useEffect(() => {
-    
+
     updateImageSize();
-    fetchRefreshTime(); 
-    
+    fetchRefreshTime();
+
 
     // Run check on page load and every 1 minute
     const interval = setInterval(checkRefresh, 60 * 1000);
-    return () => clearInterval(interval); 
-  }, [refreshTime]); 
+    return () => clearInterval(interval);
+  }, [refreshTime]);
 
 
 
@@ -102,6 +98,20 @@ export default function Home() {
       .finally(() => {
         setIsRefreshing(false);
       });
+  };
+
+  const handleWindColumnClick = () => {
+    setGettingWindColumn(true);
+
+    fetch(`${API_BASE_URL}/wind-column?balloon_id=${selectedBalloon.id}&hour=${selectedHour}`)
+    .then((response) => response.blob())
+    .then((blob) => {
+      const gifObjectUrl = URL.createObjectURL(blob);
+      setWindGIFUrl(gifObjectUrl);
+      setGettingWindColumn(false);
+      setWindColumn(true);
+    })
+    .catch((error) => console.error("Error fetching image:", error));
   };
 
   // Function to fetch the latest refresh time
@@ -280,15 +290,15 @@ export default function Home() {
           <img
             ref={imgRef}
             src={mapImageUrl}
-          alt="Weather Balloon Map"
-          onLoad={handleImageLoad}
-          onClick={handleImageClick}
-          style={{
-            width: "100%", // or any size you prefer
-            height: "auto",
-            cursor: "pointer",
-            display: "block",
-          }}
+            alt="Weather Balloon Map"
+            onLoad={handleImageLoad}
+            onClick={handleImageClick}
+            style={{
+              width: "100%", // or any size you prefer
+              height: "auto",
+              cursor: "pointer",
+              display: "block",
+            }}
           />
           {selectedBalloon && (
             <div
@@ -326,26 +336,45 @@ export default function Home() {
           {selectedBalloon ? (
             <>
               <h2>Balloon #{selectedBalloon.id} Details </h2>
+              <Link href={`/navigator?balloonId=${selectedBalloon.id}`}>
+                <button>Navigate Balloon #{selectedBalloon.id}</button>
+              </Link>
               <p><strong>Latitude:</strong> {selectedBalloon.lat.toFixed(3) ?? `N/A`}</p>
               <p><strong>Longitude:</strong> {selectedBalloon.long.toFixed(3) ?? `N/A`},</p>
               <p><strong>Altitude:</strong> {selectedBalloon.alt.toFixed(3) ?? `N/A`} km</p>
               <p><strong>Speed:</strong> {selectedBalloon.speed.toFixed(2) ?? "N/A"} km/h </p>
               <p><strong>Bearing:</strong> {selectedBalloon.bearing.toFixed(2) ?? "N/A"}°</p>
               <div style={{ marginTop: "1rem", textAlign: "center" }}>
-                <img
-                  src={`${API_BASE_URL}/wind-column?balloon_id=${selectedBalloon.id}&hour=${selectedHour}`}
-                  alt={`Wind Column for balloon #${selectedBalloon.id}`}
-                  style={{
-                    maxWidth: "100%",
-                    height: "auto",
-                    border: "1px solid #ccc",
-                  }}
-                />
+                {windColumn ? (
+                  <img
+                    src={windGIFUrl}
+                    alt={`Wind Column for balloon #${selectedBalloon.id}`}
+                    style={{
+                      maxWidth: "100%",
+                      height: "auto",
+                      border: "1px solid #ccc",
+                    }}
+                  />)
+                  :
+                  (
+                    <p> </p>
+
+                  )
+                  
+
+
+                }
+                <button onClick={handleWindColumnClick} disabled={gettingWindColumn}>
+                      {gettingWindColumn ? "Loading" : "Update Wind Column"}
+               </button>
+
               </div>
               {/* Pass balloonId as a query parameter */}
-              <Link href={`/navigator?balloonId=${selectedBalloon.id}`}>
-                <button>Navigate this Balloon #{selectedBalloon.id}</button>
-              </Link>
+              <p> </p>
+              <p> </p>
+              <p> </p>
+              
+              
             </>
           ) : (
             <p>Select a balloon to see its details.</p>
