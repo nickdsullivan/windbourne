@@ -146,7 +146,15 @@ export default function Home() {
   useEffect(() => {
     fetch(`${API_BASE_URL}/get-positions?hour=${selectedHour}`)
       .then((res) => res.json())
-      .then((data) => setBalloonPositions(data))
+      .then((data) => {
+        setBalloonPositions(data);
+        balloonPositions.forEach((balloon) => {
+          if (balloon.id == selectedBalloon.id){
+            setSelectedBalloon(balloon);
+          }
+        });
+        
+      })
       .catch((error) => console.error("Error fetching positions:", error));
   }, [selectedHour]);
 
