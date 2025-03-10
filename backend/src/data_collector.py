@@ -379,7 +379,7 @@ class DataCollector:
         # reverse the speed and bearing
         speed = (df["Speed"].to_numpy() * -1)
         bearing = (df["Bearing"].to_numpy() + 180) % 360
-        print(df["Latitude"].to_numpy(), df["Longitude"].to_numpy(), speed, bearing)
+        print(df["Latitude"].to_numpy()[0], df["Longitude"].to_numpy()[0], speed[0], bearing[0])
         lat, long = move_distance_to_lat_long(df["Latitude"].to_numpy(), df["Longitude"].to_numpy(), speed, bearing)
 
         self.balloon_data.loc[idx, "Latitude"]  = lat
@@ -399,7 +399,7 @@ class DataCollector:
         # reverse the speed and bearing
         speed = df["Speed"].to_numpy()
         bearing = df["Bearing"].to_numpy()
-        print(df["Latitude"].to_numpy(), df["Longitude"].to_numpy(), speed, bearing)
+        print(df["Latitude"].to_numpy()[0], df["Longitude"].to_numpy()[0], speed[0], bearing[0])
         lat, long = move_distance_to_lat_long(df["Latitude"].to_numpy(), df["Longitude"].to_numpy(), speed, bearing)
         
         idx = self.balloon_data[self.balloon_data["Hour"] == hour].index
