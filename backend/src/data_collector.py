@@ -428,7 +428,7 @@ class DataCollector:
         distances, bearing = earth_distance(starting_location, ending_location)
         distances = distances / difference
         lat, long = move_distance_to_lat_long(starting_df["Latitude"].to_numpy(), starting_df["Longitude"].to_numpy(), distances, bearing)
-        elevations = starting_df["Elevation"] + (ending_df["Elevation"]-starting_df["Elevation"]) / difference
+        elevations = starting_df["Elevation"].to_numpy() + (ending_df["Elevation"].to_numpy()-starting_df["Elevation"].to_numpy()) / difference
         self.balloon_data.loc[idx, "Latitude"]  = lat
         self.balloon_data.loc[idx, "Longitude"] = long
         self.balloon_data.loc[idx, "Elevation"] = elevations
@@ -458,9 +458,7 @@ class DataCollector:
                 break
                 
         for hour in range(start_hour, end_hour):
-            print(hour)
             if self.hour_unavailable(hour):
-                print("Found interp", hour)
                 # find the largest filled in hour
                 for starting_hour in range(hour, end_hour):
                     if self.hour_unavailable(starting_hour):
