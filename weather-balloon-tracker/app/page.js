@@ -273,15 +273,11 @@ export default function Home() {
           <h1>Description and project notes</h1>
           <h3>Overview</h3>
           <p>
-            {/* Filler text for now */}
             The goal of this project is to use variations in wind across different altitudes to control the positions of balloons.
             To get the wind data, I use Open-Meteo. For the balloon data, I use the data you provided. I interpolate and extrapolate the missing data.
           </p>
-
           <h3>Usage</h3>
-
           <p>
-            {/* Filler text for now */}
             You can skim through the last 23 hours of data using the slider above the map.
             Click on a balloon to view its location, elevation, speed, and bearing. The speed and bearing are calculated by taking the difference between its current location and its last recorded location.
             Click the button labeled **Update Wind Column**, and a GIF of the wind column will be generated.
@@ -289,9 +285,7 @@ export default function Home() {
             You can also click the button labeled **Navigate Balloon**, which will take you to the navigation page.
             On that page, click anywhere on the globe and press **Navigate**. I use beam search to predict future potential positions. You can adjust the parameters via the text boxes.
           </p>
-
           <h3>Notes</h3>
-
           <p>
             <strong>I only have 10,000 API calls for Open-Meteo per day.  If you navigate a balloon with a large beam width and a high number of maximum iterations, you will likely use all of them.</strong>
             The beam search treats locations as nodes and wind speed/direction as edges. I have limited the elevation to 10 possible heights to reduce the state space and minimize API calls.
