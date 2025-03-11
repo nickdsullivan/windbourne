@@ -138,7 +138,7 @@ function NavigatorContent() {
 
         <main style={{ textAlign: "center", marginTop: "50px" }}>
             <h1>Navigate balloon #{balloonId} </h1>
-            <p>Click a spot on the map and press navigate #{balloonId}.  </p>
+            <p>Click a spot on the map and press <i>Navigate Balloon</i> </p>
             <p>With Max iteration 100 it will roughly take up to 5 minutes to process</p>
             <>
                 <p>

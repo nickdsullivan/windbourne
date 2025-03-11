@@ -72,6 +72,7 @@ def get_balloon_map(balloon_id, hour=0):
             visualizer.visualize_wind(elevations, wind_speeds, directions, balloon_elevation=elevation, filename=filename, balloon_number=balloon_id, hour=hour)
     except ValueError as e:
         print("Failed to get wind column")
+        return {"error": e}
     if os.path.exists(filename):
         response = FileResponse(filename, media_type="image/gif")
         response.headers["Access-Control-Allow-Origin"] = "cross-origin" 

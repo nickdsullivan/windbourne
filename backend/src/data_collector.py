@@ -367,7 +367,7 @@ class DataCollector:
         df = self.balloon_data
         df = df[df["Hour"] == hour]
         df = df[df["Balloon"] == number]
-        return {"lat" : df["Latitude"].iloc[0], "long" : df["Longitude"].iloc[0], "alt":  df["Elevation"].iloc[0], "speed": df["Speed"].iloc[0], "bearing": df["Bearing"].iloc[0]}
+        return {"lat" : df["Latitude"].iloc[0], "long" : df["Longitude"].iloc[0], "alt":  df["Elevation"].iloc[0], "speed": df["Speed"].iloc[0], "bearing": df["Bearing"].iloc[0], "hour": df["Hour"].iloc[0]}
 
     def hour_unavailable(self,hour):
         return self.balloon_data[self.balloon_data["Hour"] == hour]["Latitude"].isna().all()
