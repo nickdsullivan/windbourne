@@ -402,11 +402,11 @@ class DataCollector:
         lat, long = move_distance_to_lat_long(df["Latitude"].to_numpy(), df["Longitude"].to_numpy(), speed, bearing)
         
         idx = self.balloon_data[self.balloon_data["Hour"] == hour].index
-        self.balloon_data.loc[idx, "Latitude"]  = lat
-        self.balloon_data.loc[idx, "Longitude"] = long
+        self.balloon_data.loc[idx, "Latitude"]  = df["Latitude"].values
+        self.balloon_data.loc[idx, "Longitude"] = df["Longitude"]
         self.balloon_data.loc[idx, "Elevation"] = df["Elevation"].values
-        self.balloon_data.loc[idx, "Speed"]     = speed
-        self.balloon_data.loc[idx, "Bearing"]   = bearing
+        self.balloon_data.loc[idx, "Speed"]     = df["Speed"].values
+        self.balloon_data.loc[idx, "Bearing"]   = df["Bearing"].values
         
     
         

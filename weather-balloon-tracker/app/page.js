@@ -275,7 +275,7 @@ export default function Home() {
           <h1>Description and project notes</h1>
           <h3>Overview</h3>
           <p>
-          The goal of this project is to use variations in wind across different altitudes to control the positions of balloons. To get the wind data, I use Open-Meteo. For the balloon data, I use the data you provided. I interpolate and extrapolate the missing data.
+          The goal of this project is to use variations in wind across different altitudes to control the positions of balloons. To get the wind data, I use Open-Meteo. For the balloon data, I use the data you provided. I interpolate the missing data but I do not extrapolate.
           </p>
           <h3>Usage</h3>
           <p>
@@ -297,9 +297,7 @@ export default function Home() {
           I also wrote a custom function to convert geographic coordinates to pixel values. The map uses a Web Mercator projection. Additionally, I implemented a custom function to calculate the distance and bearing between two latitude/longitude coordinates, as well as a function to determine a new latitude/longitude position based on a given distance and bearing.
           </p>
 
-          <p>
-           The exterpolation is broken right now.  I can 
-          </p>
+
         </div>
         <div style={{ position: "relative", display: "inline-block" }}>
           <img
