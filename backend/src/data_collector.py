@@ -436,8 +436,6 @@ class DataCollector:
 
     def fill_missing_hours(self, start_hour = 0, end_hour = 23):
 
-        with open("test.txt", "x") as file:
-            file.write("hello")
         # Left exterpolation
         for hour in range(start_hour, end_hour+1, 1):
             if self.hour_unavailable(hour):
@@ -453,7 +451,7 @@ class DataCollector:
             else:
                 for next_hour_right in range(hour, end_hour+1, 1):
                     self.exterpolate_right(next_hour_right)
-                    with open("test.txt", "x") as file:
+                    with open("test.txt", "w") as file:
                         file.write(str(next_hour_right))
                     
                 break
