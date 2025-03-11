@@ -93,7 +93,7 @@ def get_balloon_map(balloon_id, hour=0):
 def get_positions(hour=0):
     print(f"{datetime.datetime.now().strftime("%m/%d %H:%M:%S")} get-positions (hour = {hour})")
     hour = int(hour)
-    return JSONResponse(content= visualizer.get_positions(df,hour))
+    return JSONResponse(content= dc.get_positions(df,hour))
 
 
 

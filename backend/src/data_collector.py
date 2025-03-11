@@ -5,7 +5,8 @@ from datetime import datetime, timedelta, timezone
 import time
 import numpy as np
 import math
-from src.tools import earth_distance, convert_time_string_meteo, elevation_to_pressure, move_distance_to_lat_long
+import cv2
+from src.tools import earth_distance, convert_time_string_meteo, elevation_to_pressure, move_distance_to_lat_long, loc2pixels
 class DataCollector:
     def __init__(self):
         self.balloon_data       = pd.read_csv("./data/Windborne.csv")
@@ -475,7 +476,33 @@ class DataCollector:
                         self.add_balloon_speed()
         self.save_balloon_data()
 
-                
+    def get_positions(self, df, hour = 0):  
+        image = cv2.imread(self.base_map)
+       
+        lats        = df[df["Hour"] == hour]["Latitude"].to_list()
+        longs       = df[df["Hour"] == hour]["Longitude"].to_list()
+        elevations  = df[df["Hour"] == hour]["Elevation"].to_list()
+        speeds  = df[df["Hour"] == hour]["Speed"].to_list()
+        bearings  = df[df["Hour"] == hour]["Bearing"].to_list()
+        hours  = df[df["Hour"] == hour]["Hour"].to_list()
+        zoom = math.log2(image.shape[1]/256)
+        results = []
+        if (len(lats) == 0):
+            self.fill_missing_hours()
+        for balloon_number in range(len(lats)):
+            location = lats[balloon_number], longs[balloon_number], elevations[balloon_number]
+            speed = speeds[balloon_number]
+            bearing = bearings[balloon_number]
+            hour1 = hours[balloon_number]
+            if np.isnan(location[0]) or np.isnan(location[1]):
+                continue
+            x,y = loc2pixels((location[0], location[1]), zoom)
+            if math.isnan(speed):
+                speed = -1
+            if math.isnan(bearing):
+                bearing = -1
+            results.append({"id": balloon_number, "x" : x, "y": y, "lat" : location[0], "long": location[1], "alt": location[2], "speed":speed, "bearing": bearing, "hour": hour1})
+        return results     
         
 
 
