@@ -5,8 +5,7 @@ from datetime import datetime, timedelta, timezone
 import time
 import numpy as np
 import math
-import cv2
-from src.tools import earth_distance, convert_time_string_meteo, elevation_to_pressure, move_distance_to_lat_long, loc2pixels
+from src.tools import earth_distance, convert_time_string_meteo, elevation_to_pressure, move_distance_to_lat_long
 class DataCollector:
     def __init__(self):
         self.balloon_data       = pd.read_csv("./data/Windborne.csv")
