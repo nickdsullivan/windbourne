@@ -124,12 +124,14 @@ class Visualizer:
         elevations  = df[df["Hour"] == hour]["Elevation"].to_list()
         speeds  = df[df["Hour"] == hour]["Speed"].to_list()
         bearings  = df[df["Hour"] == hour]["Bearing"].to_list()
+        hours  = df[df["Hour"] == hour]["Hour"].to_list()
         zoom = math.log2(image.shape[1]/256)
         pixels = []
         for balloon_number in range(len(lats)):
             location = lats[balloon_number], longs[balloon_number], elevations[balloon_number]
             speed = speeds[balloon_number]
             bearing = bearings[balloon_number]
+            hour1 = hours[balloon_number]
             if np.isnan(location[0]) or np.isnan(location[1]):
                 continue
             x,y = loc2pixels((location[0], location[1]), zoom)
@@ -137,7 +139,7 @@ class Visualizer:
                 speed = -1
             if math.isnan(bearing):
                 bearing = -1
-            pixels.append({"id": balloon_number, "x" : x, "y": y, "lat" : location[0], "long": location[1], "alt": location[2], "speed":speed, "bearing": bearing })
+            pixels.append({"id": balloon_number, "x" : x, "y": y, "lat" : location[0], "long": location[1], "alt": location[2], "speed":speed, "bearing": bearing, "hour": hour1})
         return pixels
     
 
