@@ -39,9 +39,9 @@ class DataCollector:
                 raise IndexError
             response = requests.get(url)
             if response.status_code != 200:
-                if hour == 0:
-                    return -1
-                print(f"({hour}) Failed")
+                # if hour == 0:
+                #     return -1
+                # print(f"({hour}) Failed")
                 # We know there are 1000 balloons.  It is nice this doesn't change
                 for balloon in range(1000):
                     balloon_row = {
