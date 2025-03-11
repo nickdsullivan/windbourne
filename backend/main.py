@@ -53,7 +53,7 @@ def get_balloon_map(hour=0):
     filename = f"images/current_positions_{hour}.png" 
     
     if not was_file_created_last_hour(filename):
-        visualizer.create_current_map(df,hour)
+        visualizer.create_current_map(dc.balloon_data,hour)
 
     if os.path.exists(filename):
         return FileResponse(filename, media_type="image/png")
@@ -63,7 +63,7 @@ def get_balloon_map(hour=0):
 
 @app.get("/get-df")
 def get_df():
-    return JSONResponse(content= df.to_json())
+    return JSONResponse(content= dc.balloon_data.to_json())
 
 @app.get("/wind-column")
 def get_balloon_map(balloon_id, hour=0):
@@ -100,7 +100,7 @@ def get_balloon_map(balloon_id, hour=0):
 def get_positions(hour=0):
     print(f"{datetime.datetime.now().strftime("%m/%d %H:%M:%S")} get-positions (hour = {hour})")
     hour = int(hour)
-    return JSONResponse(content= visualizer.get_positions(df,hour))
+    return JSONResponse(content= visualizer.get_positions(dc.balloon_data,hour))
 
 
 
