@@ -12,7 +12,7 @@ export default function Home() {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [windColumn, setWindColumn] = useState(false);
   const [gettingWindColumn, setGettingWindColumn] = useState(false);
-  
+
   // Store the balloon positions, each assumed to have { id, x, y } in ORIGINAL coords
   const [balloonPositions, setBalloonPositions] = useState([]);
   const [realBalloonPositions, setRealBalloonPositions] = useState([]);
@@ -104,14 +104,14 @@ export default function Home() {
     setGettingWindColumn(true);
 
     fetch(`${API_BASE_URL}/wind-column?balloon_id=${selectedBalloon.id}&hour=${selectedHour}`)
-    .then((response) => response.blob())
-    .then((blob) => {
-      const gifObjectUrl = URL.createObjectURL(blob);
-      setWindGIFUrl(gifObjectUrl);
-      setGettingWindColumn(false);
-      setWindColumn(true);
-    })
-    .catch((error) => console.error("Error fetching image:", error));
+      .then((response) => response.blob())
+      .then((blob) => {
+        const gifObjectUrl = URL.createObjectURL(blob);
+        setWindGIFUrl(gifObjectUrl);
+        setGettingWindColumn(false);
+        setWindColumn(true);
+      })
+      .catch((error) => console.error("Error fetching image:", error));
   };
 
   // Function to fetch the latest refresh time
@@ -149,11 +149,11 @@ export default function Home() {
       .then((data) => {
         setBalloonPositions(data);
         balloonPositions.forEach((balloon) => {
-          if (balloon.id == selectedBalloon.id){
+          if (balloon.id == selectedBalloon.id) {
             setSelectedBalloon(balloon);
           }
         });
-        
+
       })
       .catch((error) => console.error("Error fetching positions:", error));
   }, [selectedHour]);
@@ -274,24 +274,38 @@ export default function Home() {
           <h3>Overview</h3>
           <p>
             {/* Filler text for now */}
-            The goal of this project is use the variation in the over different altitudes to control where the positions of balloons.
-            To get the wind data I open meteo is used.  For the balloon data I use the data you provided.  I interpolate and exterpolate the missing data.
+            The goal of this project is to use variations in wind across different altitudes to control the positions of balloons.
+            To get the wind data, I use Open-Meteo. For the balloon data, I use the data you provided. I interpolate and extrapolate the missing data.
           </p>
+
           <h3>Usage</h3>
+
           <p>
             {/* Filler text for now */}
-            Idk anymore
+            You can skim through the last 23 hours of data using the slider above the map.
+            Click on a balloon to view its location, elevation, speed, and bearing. The speed and bearing are calculated by taking the difference between its current location and its last recorded location.
+            Click the button labeled **Update Wind Column**, and a GIF of the wind column will be generated.
+            The black dot in the GIF represents the balloon's position.
+            You can also click the button labeled **Navigate Balloon**, which will take you to the navigation page.
+            On that page, click anywhere on the globe and press **Navigate**. I use beam search to predict future potential positions. You can adjust the parameters via the text boxes.
           </p>
-          <h3>Usage</h3>
+
+          <h3>Notes</h3>
+
           <p>
-            Cras at dui viverra, hendrerit metus eget, condimentum diam. Integer id orci
-            id justo lobortis dignissim. Proin consequat odio ac vestibulum porttitor.
-            Maecenas at efficitur purus. Nam blandit, sapien non convallis volutpat,
-            orci ex suscipit mi, non suscipit lacus tellus scelerisque orci.
+            <strong>I only have 10,000 API calls for Open-Meteo per day.  If you navigate a balloon with a large beam width and a high number of maximum iterations, you will likely use all of them.</strong>
+            The beam search treats locations as nodes and wind speed/direction as edges. I have limited the elevation to 10 possible heights to reduce the state space and minimize API calls.
+            It is unlikely that the balloon will reach the target location exactly, as the wind is highly likely to blow it off track.
           </p>
+
           <p>
-            Donec aliquet mauris quis velit suscipit, et rutrum sem cursus. Sed vitae
-            imperdiet augue. Etiam blandit pharetra lorem, eu ornare ligula pretium ut.
+            The interpolation and extrapolation methods are fairly simple. The interpolation method takes the midpoint between two real data points.
+            The extrapolation algorithm estimates the next location based on the past speed and bearing of the weather balloon.
+          </p>
+
+          <p>
+            I also wrote a custom function to convert geographic coordinates to pixel values. The map uses a Web Mercator projection.
+            Additionally, I implemented a custom function to calculate the distance and bearing between two latitude/longitude coordinates, as well as a function to determine a new latitude/longitude position based on a given distance and bearing.
           </p>
         </div>
         <div style={{ position: "relative", display: "inline-block" }}>
@@ -368,21 +382,21 @@ export default function Home() {
                     <p> </p>
 
                   )
-                  
+
 
 
                 }
                 <button onClick={handleWindColumnClick} disabled={gettingWindColumn}>
-                      {gettingWindColumn ? "Loading" : "Update Wind Column"}
-               </button>
+                  {gettingWindColumn ? "Loading" : "Update Wind Column"}
+                </button>
 
               </div>
               {/* Pass balloonId as a query parameter */}
               <p> </p>
               <p> </p>
               <p> </p>
-              
-              
+
+
             </>
           ) : (
             <p>Select a balloon to see its details.</p>

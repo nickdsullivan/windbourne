@@ -195,7 +195,7 @@ function NavigatorContent() {
 
             </div>
             <button onClick={handleNavigationClick} disabled={isNavigating}>
-                {isNavigating ? "Finding Path" : "Click to find path"}
+                {isNavigating ? "Navigating" : "Navigate Balloon"}
             </button>
 
             {balloonPosition ? (
