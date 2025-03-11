@@ -388,7 +388,6 @@ class DataCollector:
         self.balloon_data.loc[idx, "Elevation"] = df["Elevation"].values
         self.balloon_data.loc[idx, "Speed"]     = speed
         self.balloon_data.loc[idx, "Bearing"]   = bearing
-        self.save_balloon_data()
 
 
     def exterpolate_right(self, hour):
@@ -397,20 +396,19 @@ class DataCollector:
         if len(df) == 0:
             raise IndexError ("Hour too far")
 
-
+        # reverse the speed and bearing
         speed = df["Speed"].to_numpy()
         bearing = df["Bearing"].to_numpy()
         lat, long = move_distance_to_lat_long(df["Latitude"].to_numpy(), df["Longitude"].to_numpy(), speed, bearing)
-
-
+        
         idx = self.balloon_data[self.balloon_data["Hour"] == hour].index
         self.balloon_data.loc[idx, "Latitude"]  = lat
         self.balloon_data.loc[idx, "Longitude"] = long
         self.balloon_data.loc[idx, "Elevation"] = df["Elevation"].values
         self.balloon_data.loc[idx, "Speed"]     = speed
         self.balloon_data.loc[idx, "Bearing"]   = bearing
-        self.save_balloon_data()
-
+        
+    
         
     def interpolate(self, hour, starting_hour, ending_hour):
         starting_df = self.balloon_data[self.balloon_data["Hour"] == starting_hour]
@@ -434,7 +432,6 @@ class DataCollector:
         self.balloon_data.loc[idx, "Elevation"] = elevations
         self.balloon_data.loc[idx, "Speed"]     = distances
         self.balloon_data.loc[idx, "Bearing"]   = bearing
-        self.save_balloon_data()
         
 
     def fill_missing_hours(self, start_hour = 0, end_hour = 23):
