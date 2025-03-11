@@ -36,7 +36,10 @@ def refresh_data():
     if return_code == -1:
         dc.download_windborne_data()
     dc.add_balloon_speed()
-    dc.fill_missing_hours(0, 23)
+    try:
+        dc.fill_missing_hours(0, 23)
+    except Exception as e: 
+        return {"Status": str(e)}
     return {"Status": "ok"}
 
 
