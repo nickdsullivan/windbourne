@@ -381,9 +381,9 @@ class DataCollector:
         # reverse the speed and bearing
         
         if len(df["Speed"].to_numpy()) == 0:
-            speed = np.random.choice([0, 120], size=1000)
+            speed = np.ones(1000)
         if len(df["Speed"].to_numpy()) == 0:
-            bearing = np.random.choice([0, 120], size=1000)
+            bearing = np.ones(1000)
         speed = (df["Speed"].to_numpy() * -1)
         bearing = (df["Bearing"].to_numpy() + 180) % 360
         lat, long = move_distance_to_lat_long(df["Latitude"].to_numpy(), df["Longitude"].to_numpy(), speed, bearing)
@@ -402,6 +402,10 @@ class DataCollector:
             raise IndexError ("Hour too far")
 
         # reverse the speed and bearing
+        if len(df["Speed"].to_numpy()) == 0:
+            speed = np.ones(1000)
+        if len(df["Speed"].to_numpy()) == 0:
+            bearing = np.ones(1000)
         speed = df["Speed"].to_numpy()
         bearing = df["Bearing"].to_numpy()
         lat, long = move_distance_to_lat_long(df["Latitude"].to_numpy(), df["Longitude"].to_numpy(), speed, bearing)
