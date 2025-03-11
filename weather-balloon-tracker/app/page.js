@@ -7,7 +7,7 @@ export default function Home() {
   const [mapImageUrl, setMapImageUrl] = useState(null);
   const [windGIFUrl, setWindGIFUrl] = useState(null);
 
-  const [refreshTime, setRefreshTime] = useState(null);
+  const [refreshTime, setRefreshTime] = useState(false);
   const [selectedHour, setSelectedHour] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [windColumn, setWindColumn] = useState(false);
@@ -79,26 +79,25 @@ export default function Home() {
 
 
   const handleRefreshClick = () => {
-    setIsRefreshing(true);
-
-    fetch(`${API_BASE_URL}/refresh-data`)
-      .then((response) => {
-        if (!response.ok) {
-          console.log(response);
-          throw new Error("Failed to refresh data");
-        }
-        return response.json();
-      })
-      .then((data) => {
-        console.log("Data refresh successful:", data);
-        fetchRefreshTime(); // Update last refresh time
-      })
-      .catch((err) => {
-        console.error("Error refreshing data:", err);
-      })
-      .finally(() => {
-        setIsRefreshing(false);
-      });
+      setIsRefreshing(true);
+      fetch(`${API_BASE_URL}/refresh-data`)
+        .then((response) => {
+          if (!response.ok) {
+            console.log(response);
+            throw new Error("Failed to refresh data");
+          }
+          return response.json();
+        })
+        .then((data) => {
+          console.log("Data refresh successful:", data);
+          fetchRefreshTime(); // Update last refresh time
+        })
+        .catch((err) => {
+          console.error("Error refreshing data:", err);
+        })
+        .finally(() => {
+          setIsRefreshing(false);
+        });
   };
 
   const handleWindColumnClick = () => {
@@ -279,33 +278,26 @@ export default function Home() {
           <h1>Description and project notes</h1>
           <h3>Overview</h3>
           <p>
-            The goal of this project is to use variations in wind across different altitudes to control the positions of balloons.
-            To get the wind data, I use Open-Meteo. For the balloon data, I use the data you provided. I interpolate and extrapolate the missing data.
+          The goal of this project is to use variations in wind across different altitudes to control the positions of balloons. To get the wind data, I use Open-Meteo. For the balloon data, I use the data you provided. I interpolate and extrapolate the missing data.
           </p>
           <h3>Usage</h3>
           <p>
-            You can skim through the last 23 hours of data using the slider above the map.
-            Click on a balloon to view its location, elevation, speed, and bearing. The speed and bearing are calculated by taking the difference between its current location and its last recorded location.
-            Click the button labeled <i>Update Wind Column</i>, and a GIF of the wind column will be generated.
-            The black dot in the GIF represents the balloon&apos;s position.
-            You can also click the button labeled <i>Navigate Balloon</i>, which will take you to the navigation page.
-            On that page, click anywhere on the globe and press <i>Navigate</i>. I use beam search to predict future potential positions. You can adjust the parameters via the text boxes.
+          You can skim through the last 23 hours of data using the slider above the map.  Click on a balloon to view its location, elevation, speed, and bearing. The speed and bearing are calculated by taking the difference between its current location and its last recorded location. 
+          Click the button labeled <i>Update Wind Column</i> , and a GIF of the wind column will be generated.  The black dot in the GIF represents the balloon's position.  You can also click the button labeled <i>Navigate Balloon</i>, which will take you to the navigation page.  On that page, click anywhere on the globe and press 
+          <i>Navigate</i>.  I use beam search to predict future potential positions. You can adjust the parameters via the text boxes.
           </p>
           <h3>Notes</h3>
           <p>
             <strong>I only have 10,000 API calls for Open-Meteo per day.  If you navigate a balloon with a large beam width and a high number of maximum iterations, you will likely use all of them.</strong>
-            The beam search treats locations as nodes and wind speed/direction as edges. I have limited the elevation to 10 possible heights to reduce the state space and minimize API calls.
-            It is unlikely that the balloon will reach the target location exactly, as the wind is highly likely to blow it off track.
+            The beam search treats locations as nodes and wind speed/direction as edges. I have limited the elevation to 10 possible heights to reduce the state space and minimize API calls. It is unlikely that the balloon will reach the target location exactly, as the wind is highly likely to blow it off track.
           </p>
 
           <p>
-            The interpolation and extrapolation methods are fairly simple. The interpolation method takes the midpoint between two real data points.
-            The extrapolation algorithm estimates the next location based on the past speed and bearing of the weather balloon.
+          The interpolation and extrapolation methods are fairly simple. The interpolation method takes the midpoint between two real data points. The extrapolation algorithm estimates the next location based on the past speed and bearing of the weather balloon.
           </p>
 
           <p>
-            I also wrote a custom function to convert geographic coordinates to pixel values. The map uses a Web Mercator projection.
-            Additionally, I implemented a custom function to calculate the distance and bearing between two latitude/longitude coordinates, as well as a function to determine a new latitude/longitude position based on a given distance and bearing.
+          I also wrote a custom function to convert geographic coordinates to pixel values. The map uses a Web Mercator projection. Additionally, I implemented a custom function to calculate the distance and bearing between two latitude/longitude coordinates, as well as a function to determine a new latitude/longitude position based on a given distance and bearing.
           </p>
 
           <p>

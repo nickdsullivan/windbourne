@@ -28,19 +28,20 @@ app.add_middleware(
 
 @app.get("/refresh-data")
 def refresh_data():
-    print(f"{datetime.datetime.now().strftime("%m/%d %H:%M:%S")} refresh-data ()")
-    clear_folder("./images")
-    clear_folder("./wind_column")
-    dc.clear()
-    return_code = dc.download_windborne_data()
-    if return_code == -1:
-        dc.download_windborne_data()
-    dc.add_balloon_speed()
     try:
+        print(f"{datetime.datetime.now().strftime("%m/%d %H:%M:%S")} refresh-data ()")
+        clear_folder("./images")
+        clear_folder("./wind_column")
+        dc.clear()
+        return_code = dc.download_windborne_data()
+        if return_code == -1:
+            dc.download_windborne_data()
+        dc.add_balloon_speed()
         dc.fill_missing_hours(0, 23)
+        dc.add_balloon_speed()
     except Exception as e: 
         return {"Status": str(e)}
-    dc.add_balloon_speed()
+    
     return {"Status": "ok"}
 
 
@@ -50,9 +51,10 @@ def get_balloon_map(hour=0):
     print(f"{datetime.datetime.now().strftime("%m/%d %H:%M:%S")} balloon-map (hour = {hour})")
     hour = int(hour)
     filename = f"images/current_positions_{hour}.png" 
-
+    
     if not was_file_created_last_hour(filename):
         visualizer.create_current_map(df,hour)
+
     if os.path.exists(filename):
         return FileResponse(filename, media_type="image/png")
     else:
