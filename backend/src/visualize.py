@@ -139,9 +139,9 @@ class Visualizer:
                 continue
             x,y = loc2pixels((location[0], location[1]), zoom)
             if math.isnan(speed):
-                speed = np.random.choice([0, 120])
+                speed = -1
             if math.isnan(bearing):
-                bearing = np.random.choice([0, 360])
+                bearing = -1
             pixels.append({"id": balloon_number, "x" : x, "y": y, "lat" : location[0], "long": location[1], "alt": location[2], "speed":speed, "bearing": bearing, "hour": hour1})
         return pixels
     
