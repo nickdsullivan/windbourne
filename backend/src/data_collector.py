@@ -435,7 +435,7 @@ class DataCollector:
         
 
     def fill_missing_hours(self, start_hour = 0, end_hour = 23):
-
+        stringer = ""
         # Left exterpolation
         for hour in range(start_hour, end_hour+1, 1):
             if self.hour_unavailable(hour):
@@ -443,6 +443,7 @@ class DataCollector:
             else:
                 for next_hour_left in range(hour, start_hour, -1):
                     self.exterpolate_left(next_hour_left)
+                    stringer += f"Left: {next_hour_left}\n"
                 break
                 
         for hour in range(end_hour, start_hour, -1):
@@ -451,8 +452,7 @@ class DataCollector:
             else:
                 for next_hour_right in range(hour, end_hour+1, 1):
                     self.exterpolate_right(next_hour_right)
-                    with open("test.txt", "w") as file:
-                        file.write(str(next_hour_right))
+                    stringer += f"Right: {next_hour_right}\n"
                     
                 break
                 
@@ -464,6 +464,9 @@ class DataCollector:
                         continue
                     else:
                         self.interpolate(hour, starting_hour=starting_hour, ending_hour=hour-1)
+                        stringer += f"Interpolate: {hour}\n"
+        with open("test.txt", "w") as file:
+            file.write(stringer)
         self.save_balloon_data()
 
                 
