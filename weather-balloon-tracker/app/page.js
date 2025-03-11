@@ -365,7 +365,7 @@ export default function Home() {
               <p><strong>Altitude:</strong> {selectedBalloon.alt.toFixed(3) ?? `N/A`} km</p>
               <p><strong>Speed:</strong> {selectedBalloon.speed.toFixed(2) ?? "N/A"} km/h </p>
               <p><strong>Bearing:</strong> {selectedBalloon.bearing.toFixed(2) ?? "N/A"}°</p>
-              <p><strong>Hour:</strong> {selectedBalloon.hour ?? "N/A"}°</p>
+              <p><strong>Hour:</strong> {selectedBalloon.hour ?? "N/A"}</p>
               <div style={{ marginTop: "1rem", textAlign: "center" }}>
                 {windColumn ? (
                   <img

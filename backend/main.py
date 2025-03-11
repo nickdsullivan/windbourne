@@ -40,6 +40,7 @@ def refresh_data():
         dc.fill_missing_hours(0, 23)
     except Exception as e: 
         return {"Status": str(e)}
+    dc.add_balloon_speed()
     return {"Status": "ok"}
 
 
