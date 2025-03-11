@@ -50,8 +50,6 @@ def get_balloon_map(hour=0):
     print(f"{datetime.datetime.now().strftime("%m/%d %H:%M:%S")} balloon-map (hour = {hour})")
     hour = int(hour)
     filename = f"images/current_positions_{hour}.png" 
-    while dc.hour_unavailable(hour):
-        hour = hour - 1
 
     if not was_file_created_last_hour(filename):
         visualizer.create_current_map(df,hour)
