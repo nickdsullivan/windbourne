@@ -383,7 +383,7 @@ class DataCollector:
         if len(df["Speed"].to_numpy()) == 0:
             speed = np.random.choice([0, 120], size=1000)
         if len(df["Speed"].to_numpy()) == 0:
-            bearing = np.random.choice([0, 360], size=1000)
+            bearing = np.random.choice([0, 120], size=1000)
         speed = (df["Speed"].to_numpy() * -1)
         bearing = (df["Bearing"].to_numpy() + 180) % 360
         lat, long = move_distance_to_lat_long(df["Latitude"].to_numpy(), df["Longitude"].to_numpy(), speed, bearing)
@@ -402,13 +402,8 @@ class DataCollector:
             raise IndexError ("Hour too far")
 
         # reverse the speed and bearing
-        if len(df["Speed"].to_numpy()) == 0:
-            speed = np.random.choice([0, 120], size=1000)
-        if len(df["Speed"].to_numpy()) == 0:
-            bearing = np.random.choice([0, 360], size=1000)
         speed = df["Speed"].to_numpy()
         bearing = df["Bearing"].to_numpy()
-
         lat, long = move_distance_to_lat_long(df["Latitude"].to_numpy(), df["Longitude"].to_numpy(), speed, bearing)
         
         idx = self.balloon_data[self.balloon_data["Hour"] == hour].index
@@ -452,7 +447,6 @@ class DataCollector:
             else:
                 for next_hour_left in range(hour, start_hour, -1):
                     self.exterpolate_left(next_hour_left)
-                    self.add_balloon_speed()
                 break
        
         for hour in range(end_hour, start_hour, -1):
@@ -461,7 +455,6 @@ class DataCollector:
             else:
                 for next_hour_right in range(hour, end_hour+1, 1):
                     self.exterpolate_right(next_hour_right)
-                    self.add_balloon_speed()
                 break
                 
         for hour in range(start_hour, end_hour+1):
@@ -472,36 +465,9 @@ class DataCollector:
                         continue
                     else:
                         self.interpolate(hour, starting_hour=starting_hour, ending_hour=hour-1)
-                        self.add_balloon_speed()
         self.save_balloon_data()
 
-    def get_positions(self, df, hour = 0):  
-        image = cv2.imread(self.base_map)
-       
-        lats        = df[df["Hour"] == hour]["Latitude"].to_list()
-        longs       = df[df["Hour"] == hour]["Longitude"].to_list()
-        elevations  = df[df["Hour"] == hour]["Elevation"].to_list()
-        speeds  = df[df["Hour"] == hour]["Speed"].to_list()
-        bearings  = df[df["Hour"] == hour]["Bearing"].to_list()
-        hours  = df[df["Hour"] == hour]["Hour"].to_list()
-        zoom = math.log2(image.shape[1]/256)
-        results = []
-        if (len(lats) == 0):
-            self.fill_missing_hours()
-        for balloon_number in range(len(lats)):
-            location = lats[balloon_number], longs[balloon_number], elevations[balloon_number]
-            speed = speeds[balloon_number]
-            bearing = bearings[balloon_number]
-            hour1 = hours[balloon_number]
-            if np.isnan(location[0]) or np.isnan(location[1]):
-                continue
-            x,y = loc2pixels((location[0], location[1]), zoom)
-            if math.isnan(speed):
-                speed = -1
-            if math.isnan(bearing):
-                bearing = -1
-            results.append({"id": balloon_number, "x" : x, "y": y, "lat" : location[0], "long": location[1], "alt": location[2], "speed":speed, "bearing": bearing, "hour": hour1})
-        return results     
+                
         
 
 
