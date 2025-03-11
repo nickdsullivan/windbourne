@@ -452,7 +452,7 @@ class DataCollector:
             else:
                 for next_hour_right in range(hour, end_hour+1, 1):
                     self.exterpolate_right(next_hour_right)
-                    stringer += f"Right: {next_hour_right}\n"
+                    stringer += f"Right: {next_hour_right} {hour}\n"
                     
                 break
                 
