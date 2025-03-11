@@ -54,7 +54,9 @@ def get_balloon_map(hour=0):
         return {"error": "Image not found"}
     
 
-
+@app.get("/get-df")
+def get_df():
+    return JSONResponse(content= df.to_json())
 
 @app.get("/wind-column")
 def get_balloon_map(balloon_id, hour=0):

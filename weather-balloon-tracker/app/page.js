@@ -54,6 +54,7 @@ export default function Home() {
         setMapImageUrl(imageObjectUrl);
       })
       .catch((error) => console.error("Error fetching image:", error));
+
   }, [selectedHour]); // Re-fetch image when `selectedHour` changes
 
 
@@ -148,11 +149,15 @@ export default function Home() {
       .then((res) => res.json())
       .then((data) => {
         setBalloonPositions(data);
-        balloonPositions.forEach((balloon) => {
-          if (balloon.id == selectedBalloon.id) {
-            setSelectedBalloon(balloon);
+        if (selectedBalloon){
+          const foundBalloon = data.find(balloon => balloon.id === selectedBalloon.id);
+        
+          if (foundBalloon) {
+            console.log("Found");
+            setSelectedBalloon(foundBalloon);
+            console.log(foundBalloon.hour);
           }
-        });
+        }
 
       })
       .catch((error) => console.error("Error fetching positions:", error));
