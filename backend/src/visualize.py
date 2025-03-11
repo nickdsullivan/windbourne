@@ -87,6 +87,7 @@ class Visualizer:
 
 
     def create_current_map(self, df, hour = 0, filename= None):
+        df = df.dropna(subset=["Latitude","Longitude"])
         if filename is None:
             filename = f"{self.image_folder}current_positions_{hour}.png"
         lats        = df[df["Hour"] == hour]["Latitude"].to_list()
