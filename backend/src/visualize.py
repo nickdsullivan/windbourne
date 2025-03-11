@@ -93,7 +93,8 @@ class Visualizer:
         longs       = df[df["Hour"] == hour]["Longitude"].to_list()
         elevations  = df[df["Hour"] == hour]["Elevation"].to_list()
 
-            
+        with open("text.txt", "w") as file:
+            file.write(str(lats))
         image = cv2.imread(self.base_map)
         result = image.copy()
         result = self.create_map(result, lats, longs, elevations, 1, filename, save = True)
