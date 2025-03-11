@@ -118,7 +118,10 @@ class Visualizer:
     
     def get_positions(self, df, hour = 0):  
         image = cv2.imread(self.base_map)
-       
+        while len(df[df["Hour"] == hour]) == 0:
+            hours = hour -1
+            if hour < 0:
+                return []
         lats        = df[df["Hour"] == hour]["Latitude"].to_list()
         longs       = df[df["Hour"] == hour]["Longitude"].to_list()
         elevations  = df[df["Hour"] == hour]["Elevation"].to_list()
