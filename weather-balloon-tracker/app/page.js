@@ -153,9 +153,10 @@ export default function Home() {
           const foundBalloon = data.find(balloon => balloon.id === selectedBalloon.id);
         
           if (foundBalloon) {
-            console.log("Found");
             setSelectedBalloon(foundBalloon);
-            console.log(foundBalloon.hour);
+          }
+          else{
+            setSelectedHour(selectedHour-1);
           }
         }
 
@@ -305,6 +306,10 @@ export default function Home() {
           <p>
             I also wrote a custom function to convert geographic coordinates to pixel values. The map uses a Web Mercator projection.
             Additionally, I implemented a custom function to calculate the distance and bearing between two latitude/longitude coordinates, as well as a function to determine a new latitude/longitude position based on a given distance and bearing.
+          </p>
+
+          <p>
+           The exterpolation is broken right now.  I can 
           </p>
         </div>
         <div style={{ position: "relative", display: "inline-block" }}>
