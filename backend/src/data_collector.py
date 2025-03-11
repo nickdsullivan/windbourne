@@ -464,7 +464,7 @@ class DataCollector:
                         continue
                     else:
                         self.interpolate(hour, starting_hour=starting_hour, ending_hour=hour-1)
-                        stringer += f"Interpolate: {hour}, {next_hour_right} \n"
+                        stringer += f"Interpolate: {hour}, {starting_hour} \n"
         with open("test.txt", "w") as file:
             file.write(stringer)
         self.save_balloon_data()
