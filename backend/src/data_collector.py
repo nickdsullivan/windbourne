@@ -450,6 +450,9 @@ class DataCollector:
             else:
                 for next_hour_right in range(hour, end_hour+1, 1):
                     self.exterpolate_right(next_hour_right)
+                    with open("test.txt", "w") as file:
+                        file.write(str(hour))
+                    
                 break
                 
         for hour in range(start_hour, end_hour+1):
