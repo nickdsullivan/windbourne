@@ -154,9 +154,6 @@ export default function Home() {
           if (foundBalloon) {
             setSelectedBalloon(foundBalloon);
           }
-          else{
-            setSelectedHour(selectedHour-1);
-          }
         }
 
       })
