@@ -280,8 +280,7 @@ export default function Home() {
           <h3>Usage</h3>
           <p>
           You can skim through the last 23 hours of data using the slider above the map.  Click on a balloon to view its location, elevation, speed, and bearing. The speed and bearing are calculated by taking the difference between its current location and its last recorded location. 
-          Click the button labeled <i>Update Wind Column</i> , and a GIF of the wind column will be generated.  The black dot in the GIF represents the balloon&apos;s position.  You can also click the button labeled <i>Navigate Balloon</i>, which will take you to the navigation page.  On that page, click anywhere on the globe and press 
-          <i>Navigate</i>.  I use beam search to predict future potential positions. You can adjust the parameters via the text boxes.
+          Click the button labeled <i>Update Wind Column</i>, and a GIF of the wind column will be generated.  The black dot in the GIF represents the balloon&apos;s position.  You can also click the button labeled <i>Navigate Balloon</i>, which will take you to the navigation page.  On that page, click anywhere on the globe and press <i>Navigate</i>.  I use beam search to predict future potential positions. You can adjust the parameters via the text boxes.
           </p>
           <h3>Notes</h3>
           <p>
